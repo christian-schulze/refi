@@ -2,12 +2,13 @@ import { forwardRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import { cx } from '@emotion/css';
 import styled from '@emotion/styled';
-import Typography from '@mui/material/Typography';
 
 import { useStore } from 'stores';
 
+import { Typography } from 'components/Typography';
 import { List, ListProps } from 'components/List';
 import { SearchResultItem } from 'components/SearchResultItem';
+import { useTheme } from '../themes/utils.ts';
 
 const NoResults = styled.div`
   display: flex;
@@ -31,6 +32,8 @@ export const DocSetsSearchResults = observer<
     const docSetListStore = useStore('docSetList');
     const docSetAliasStore = useStore('docSetAliases');
 
+    const theme = useTheme();
+
     const handleSelect: ListProps['onSelect'] = (name, selectionType) => {
       docSetListStore.setSelectedSearchResult(name);
       if (['mouse-click', 'enter-key'].includes(selectionType)) {
@@ -43,7 +46,7 @@ export const DocSetsSearchResults = observer<
     if (docSetListStore.searchResults.length === 0) {
       return (
         <NoResults>
-          <Typography>No matching doc sets found.</Typography>
+          <Typography variant="body">No matching doc sets found.</Typography>
         </NoResults>
       );
     }
@@ -55,11 +58,12 @@ export const DocSetsSearchResults = observer<
         items={docSetListStore.searchResults.map((result) => {
           return (
             <SearchResultItem data-id={result.name} key={result.name}>
-              <Typography variant="body2">{result.name}</Typography>
+              <Typography variant="body">{result.name}</Typography>
               {docSetAliasStore.aliases[result.name] ? (
                 <Typography
-                  sx={{ color: 'text.disabled', fontWeight: 'bolder' }}
-                  variant="body2"
+                  color={theme.palette.text.disabled}
+                  fontWeight="bolder"
+                  variant="body"
                 >
                   &nbsp;({docSetAliasStore.aliases[result.name]}:)
                 </Typography>

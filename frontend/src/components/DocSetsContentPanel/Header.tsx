@@ -5,7 +5,8 @@ import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForward from '@mui/icons-material/ArrowForward';
 import CloseIcon from '@mui/icons-material/Close';
-import Typography from '@mui/material/Typography';
+
+import { Typography } from 'components/Typography';
 
 import { useStore } from 'stores';
 
@@ -96,7 +97,7 @@ export const Header = observer(({ onClickBack, onClickForward }: HeaderProps) =>
                   src={tab.docSet?.iconPath || ''}
                   alt={`${tab.docSet?.title} docset icon`}
                 />
-                <Typography variant="body2">{tab.docSet?.title}</Typography>
+                <Typography variant="body">{tab.docSet?.title}</Typography>
                 <CloseIcon
                   onClick={handleClickClose(tab.id)}
                   sx={{ color: 'background.default', marginLeft: '6px' }}

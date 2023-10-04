@@ -38,12 +38,6 @@ export const SettingsScreen = observer(() => {
   const docSetAliasStore = useStore('docSetAliases');
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   if (!settingsStore.selectedSectionId) {
-  //     settingsStore.setSelectedSectionId('settings-list-item-general');
-  //   }
-  // }, []);
-
   const handleSelect = (id: string) => {
     settingsStore.setSelectedSectionId(id);
   };

@@ -11,8 +11,9 @@ import MUIInput from '@mui/material/Input';
 
 export interface InputProps {
   className?: string;
-  endAdornment?: ReactNode;
   disableUnderline?: boolean;
+  endAdornment?: ReactNode;
+  fullWidth?: boolean;
   inputRef?: Ref<any>;
   onBlur?: FocusEventHandler<HTMLInputElement>;
   onChange?: ChangeEventHandler<HTMLInputElement>;

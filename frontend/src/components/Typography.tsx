@@ -97,7 +97,11 @@ export const Typography = ({
   ...props
 }: TypographyProps) => {
   return (
-    <StyledTypography as={tag} className={variant} style={{ ...props }}>
+    <StyledTypography
+      as={tag}
+      className={variant}
+      style={{ ...props }}
+    >
       {children}
     </StyledTypography>
   );

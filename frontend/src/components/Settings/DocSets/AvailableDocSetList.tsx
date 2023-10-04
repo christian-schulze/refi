@@ -3,7 +3,6 @@ import { autorun } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { darken, lighten } from 'polished';
 import styled from '@emotion/styled';
-import Input from '@mui/material/Input';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
@@ -12,6 +11,7 @@ import { useStore } from 'stores';
 
 import { Typography } from 'components/Typography';
 import { List, ListProps } from 'components/List';
+import { Input } from 'components/Input';
 
 const DocSetListWrapper = styled(List)`
   flex-grow: 1;

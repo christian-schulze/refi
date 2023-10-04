@@ -7,6 +7,7 @@ import reactPlugin from '@vitejs/plugin-react';
 export default defineConfig(async () => ({
   plugins: [
     reactPlugin({
+      jsxImportSource: "@emotion/react",
       babel: {
         plugins: [
           "@emotion/babel-plugin"
