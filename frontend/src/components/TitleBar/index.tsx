@@ -1,7 +1,7 @@
 import { MouseEvent } from 'react';
 import { useNavigate } from 'react-router';
 import { lighten } from 'polished';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from '@mui/material/IconButton';
 

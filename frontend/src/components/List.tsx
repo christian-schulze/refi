@@ -9,7 +9,7 @@ import {
   useRef,
 } from 'react';
 import { useVirtual } from 'react-virtual';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
 const Container = styled.div`
   display: flex;

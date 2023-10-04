@@ -9,8 +9,8 @@ import {
 } from 'react';
 import { autorun, reaction } from 'mobx';
 import { observer } from 'mobx-react-lite';
-import styled from 'styled-components';
-import { darken } from '@mui/material/styles';
+import styled from '@emotion/styled';
+import { darken } from 'polished';
 
 import { openDB, searchDocSet } from 'services/db';
 import { useStore } from 'stores';
@@ -47,7 +47,7 @@ const SearchResultsContainer = styled.div`
   border-radius: 4px;
   background-color: ${({ theme }) => theme.palette.background.default};
   box-shadow: 0 0 2px 3px
-    ${({ theme }) => darken(theme.palette.background.default, 0.2)};
+    ${({ theme }) => darken(0.2, theme.palette.background.default)};
 
   :focus-within {
     border-color: ${({ theme }) => theme.palette.secondary.main};
@@ -371,10 +371,10 @@ export const SearchField = observer(() => {
           },
           backgroundColor: 'primary.main',
           ':hover': {
-            background: (theme) => darken(theme.palette.primary.main, 0.1),
+            background: (theme) => darken(0.1, theme.palette.primary.main),
           },
           ':focus-within': {
-            background: (theme) => darken(theme.palette.primary.main, 0.2),
+            background: (theme) => darken(0.2, theme.palette.primary.main),
           },
         }}
         value={query}

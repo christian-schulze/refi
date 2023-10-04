@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import { observer } from 'mobx-react-lite';
-import cx from 'classnames';
-import styled from 'styled-components';
+import { cx } from '@emotion/css';
+import styled from '@emotion/styled';
 
 import { useStore } from 'stores';
 

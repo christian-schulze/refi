@@ -1,4 +1,4 @@
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@emotion/react';
 
 import {
   createTheme,
@@ -9,7 +9,7 @@ import { StoresProvider, stores } from 'stores';
 
 import { Routes } from './Routes';
 import { baseDarkTheme } from 'themes/darkTheme';
-import { GlobalStyles } from './GlobalStyles';
+import { GlobalStyles } from './GlobalStyles.tsx';
 
 const muiTheme = createTheme(baseDarkTheme);
 

@@ -2,7 +2,7 @@ import { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
 import { autorun } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { darken, lighten } from 'polished';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import Input from '@mui/material/Input';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';

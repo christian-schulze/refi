@@ -1,5 +1,5 @@
 import { SVGProps } from 'react';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
 const SvgWrapper = styled.svg`
    min-width: 24px;

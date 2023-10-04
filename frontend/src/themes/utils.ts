@@ -1,6 +1,5 @@
-import { useTheme as styledComponentsUseTheme } from 'styled-components';
-import { baseDarkTheme } from './darkTheme';
+import { useTheme as styledComponentsUseTheme } from '@emotion/react';
 
 export const useTheme = () => {
-  return styledComponentsUseTheme() as typeof baseDarkTheme;
+  return styledComponentsUseTheme();
 };

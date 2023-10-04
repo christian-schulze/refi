@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
 import { List, ListProps } from 'components/List';
 import Typography from '@mui/material/Typography';
@@ -44,16 +44,16 @@ export const SettingsList = ({ onSelect, selectedId }: SettingsListProps) => {
     <ListWrapper
       items={[
         <ListItem
+          data-id="settings-list-item-docsets"
+          key="settings-list-item-docsets"
+        >
+          <Typography variant="body2">DocSets</Typography>
+        </ListItem>,
+        <ListItem
           data-id="settings-list-item-general"
           key="settings-list-item-general"
         >
           <Typography variant="body2">General</Typography>
-        </ListItem>,
-        <ListItem
-          data-id="settings-list-item-docsets"
-          key="settings-list-item-docsets"
-        >
-          <Typography variant="body2">Docsets</Typography>
         </ListItem>,
       ]}
       itemSize={24}

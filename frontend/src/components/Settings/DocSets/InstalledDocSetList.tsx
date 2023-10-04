@@ -1,7 +1,7 @@
 import { MouseEvent, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { lighten } from 'polished';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 

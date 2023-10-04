@@ -17,7 +17,7 @@ const DEFAULT_CONFIG = {
 export class SettingsStore {
   errorsStore: ErrorsStore;
 
-  selectedSectionId = '';
+  selectedSectionId = 'settings-list-item-docsets';
 
   docSetsFeedUrl = '';
   docSetsIconsUrl = '';

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { darken } from 'polished';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
 interface StyledListItemProps {
   selected?: boolean;

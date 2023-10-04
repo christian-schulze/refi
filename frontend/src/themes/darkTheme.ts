@@ -17,6 +17,7 @@ export const baseDarkTheme = {
       disabled: '#ebdbb27f',
       hint: '#ebdbb27f',
     },
+    divider: '#ebdbb2',
   },
   typography: {
     fontFamily: [

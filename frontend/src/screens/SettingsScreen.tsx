@@ -1,8 +1,8 @@
-import { MouseEvent, useEffect } from 'react';
+import { MouseEvent } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router';
 import { Resizable } from 're-resizable';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import Button from '@mui/material/Button';
 
 import { useStore } from 'stores';
@@ -22,6 +22,7 @@ const Content = styled.div`
   flex-direction: column;
 `;
 
+// @ts-expect-error
 const ResizableWrapper = styled(Resizable)`
   border-right: 4px ridge ${({ theme }) => theme.palette.divider};
 `;
@@ -37,11 +38,11 @@ export const SettingsScreen = observer(() => {
   const docSetAliasStore = useStore('docSetAliases');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!settingsStore.selectedSectionId) {
-      settingsStore.setSelectedSectionId('settings-list-item-general');
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (!settingsStore.selectedSectionId) {
+  //     settingsStore.setSelectedSectionId('settings-list-item-general');
+  //   }
+  // }, []);
 
   const handleSelect = (id: string) => {
     settingsStore.setSelectedSectionId(id);

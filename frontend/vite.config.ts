@@ -2,19 +2,14 @@
 import path from 'node:path';
 import { defineConfig } from 'vite';
 import reactPlugin from '@vitejs/plugin-react';
-import babelMacrosPlugin from 'vite-plugin-babel-macros';
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
   plugins: [
-    babelMacrosPlugin(),
     reactPlugin({
       babel: {
         plugins: [
-          [
-            'babel-plugin-styled-components',
-            { ssr: false, pure: true, displayName: true, fileName: true },
-          ],
+          "@emotion/babel-plugin"
         ],
       },
     }),

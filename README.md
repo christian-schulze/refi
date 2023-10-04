@@ -18,9 +18,9 @@ type exact matches.
 ## Development set up
 
 ### Dependencies:
-- Go 1.18+
+- Go v1.18+
 - NodeJS v20+
-- Yarn 1.x
+- Yarn v1.x
 
 ### Installing `wails`
 

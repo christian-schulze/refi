@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { observer } from 'mobx-react-lite';
 import { darken, lighten } from 'polished';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 import Input from '@mui/material/Input';
 
 import { useStore } from 'stores';

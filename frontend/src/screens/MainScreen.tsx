@@ -1,5 +1,5 @@
 import { Resizable } from 're-resizable';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
 import { DocSetList } from 'components/DocSetList';
 import { DocSetsContentPanel } from 'components/DocSetsContentPanel';
@@ -9,6 +9,7 @@ const Container = styled.div`
   display: flex;
 `;
 
+// @ts-expect-error
 const ResizableWrapper = styled(Resizable)`
   border-right: 4px ridge ${({ theme }) => theme.palette.divider};
 `;

@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import { darken } from 'polished';
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
 import { useStore } from 'stores';
 import { useTheme } from 'themes/utils';
