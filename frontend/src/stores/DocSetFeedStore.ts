@@ -1,11 +1,21 @@
 import { action, makeObservable, observable, runInAction } from 'mobx';
-import { createMachine, interpret } from 'xstate';
 
 import {
   downloadDocSetFeed,
   getLastDownloadedTimestamp,
   readDocSetFeedArchive,
 } from 'services/docSetFeedDownloader';
+import {
+  createStateMachine,
+  interpretStateMachine,
+} from 'stateMachines/docSetFeedMachine';
+import type {
+  DocSetFeedState,
+  DocSetFeedEvent,
+  DocSetFeedStateMachine,
+  DocSetFeedInterpretter,
+} from 'stateMachines/docSetFeedMachine';
+
 import { ErrorsStore } from './ErrorsStore';
 import { SettingsStore } from './SettingsStore';
 
@@ -13,100 +23,12 @@ export interface DocSetFeedEntries {
   [name: string]: string;
 }
 
-const DAY_IN_MS = 24 * 60 * 60 * 1000;
-
-const docSetFeedMachineDefinition = {
-  tsTypes: {} as import('./DocSetFeedStore.typegen').Typegen0,
-  id: 'doc-set-feed',
-  predictableActionArguments: true,
-  initial: 'inactive',
-  states: {
-    inactive: {
-      on: {
-        LOAD_DOWNLOADED_TIMESTAMP: 'loadingDownloadedTimestamp',
-      },
-    },
-    loadingDownloadedTimestamp: {
-      entry: ['loadDownloadedTimestamp'],
-      on: {
-        LOAD_DOWNLOADED_TIMESTAMP_SUCCEEDED: 'loadDownloadedTimestampSucceeded',
-        LOAD_DOWNLOADED_TIMESTAMP_FAILED: 'loadDownloadedTimestampFailed',
-      },
-    },
-    loadDownloadedTimestampSucceeded: {
-      always: [
-        {
-          target: 'downloadingDocSetFeed',
-          cond: 'shouldDownloadDocSetFeed',
-        },
-        'loadingDocSetFeed',
-      ],
-    },
-    loadDownloadedTimestampFailed: {
-      always: [
-        { target: 'done' },
-      ],
-    },
-    downloadingDocSetFeed: {
-      entry: ['downloadDocSetFeed'],
-      initial: 'downloadingDocSetFeed',
-      states: {
-        downloadingDocSetFeed: {
-          on: {
-            DOWNLOAD_DOCSET_FEED_SUCCEEDED: {
-              target: 'loadingDownloadedTimestamp',
-              internal: true,
-              actions: ['loadDownloadedTimestamp'],
-            },
-            DOWNLOAD_DOCSET_FEED_FAILED: { target: '#done' },
-          },
-        },
-        loadingDownloadedTimestamp: {
-          on: {
-            LOAD_DOWNLOADED_TIMESTAMP_SUCCEEDED: '#loadingDocSetFeed',
-            LOAD_DOWNLOADED_TIMESTAMP_FAILED: { target: '#done' },
-          },
-        },
-      },
-    },
-    loadingDocSetFeed: {
-      entry: ['loadDocSetFeedArchive'],
-      id: 'loadingDocSetFeed',
-      on: {
-        LOAD_DOCSET_FEED_SUCCEEDED: 'loadDocSetFeedSucceeded',
-        LOAD_DOCSET_FEED_FAILED: 'loadDocSetFeedFailed',
-      },
-    },
-    loadDocSetFeedSucceeded: {
-      always: [{ target: 'done' }],
-    },
-    loadDocSetFeedFailed: {
-      always: [{ target: 'done' }],
-    },
-    done: {
-      id: 'done',
-      always: [{ target: 'inactive' }],
-    },
-  },
-};
-
 export class DocSetFeedStore {
   errorsStore: ErrorsStore;
   settingsStore: SettingsStore;
-  docSetFeedMachine: any;
-  docSetFeedService: any;
-  state:
-    | 'inactive'
-    | 'loadingDownloadedTimestamp'
-    | 'loadDownloadedTimestampSucceeded'
-    | 'loadDownloadedTimestampFailed'
-    | 'downloadingDocSetFeed'
-    | 'downloadingDocSetFeed'
-    | 'loadingDownloadedTimestamp'
-    | 'loadingDocSetFeed'
-    | 'loadDocSetFeedSucceeded'
-    | 'loadDocSetFeedFailed'
-    | 'done' = 'inactive';
+  docSetFeedMachine: DocSetFeedStateMachine;
+  docSetFeedService: DocSetFeedInterpretter;
+  state: DocSetFeedState = 'inactive';
 
   docSetFeedDownloadedTimestamp = 0;
   loadingDocSetFeedDownloadedTimestamp = false;
@@ -130,35 +52,13 @@ export class DocSetFeedStore {
       loadDocSetFeedArchive: action,
     });
 
-    this.initialiseStateMachine();
-  }
-
-  initialiseStateMachine() {
-    this.docSetFeedMachine = createMachine(docSetFeedMachineDefinition, {
-      actions: {
-        loadDownloadedTimestamp: (context: this, _event) => {
-          context.loadDocSetFeedDownloadedTimestamp();
-        },
-        downloadDocSetFeed: (context, _event) => {
-          context.downloadDocSetFeed(context.settingsStore.docSetsFeedUrl);
-        },
-        loadDocSetFeedArchive: (context, _event) => {
-          context.loadDocSetFeedArchive();
-        },
+    this.docSetFeedMachine = createStateMachine(this);
+    this.docSetFeedService = interpretStateMachine(
+      this.docSetFeedMachine,
+      (state, _event) => {
+        runInAction(() => (this.state = state.value as DocSetFeedState));
       },
-      guards: {
-        shouldDownloadDocSetFeed: (context, _event) => {
-          const timestamp = context.docSetFeedDownloadedTimestamp;
-          return timestamp > -1 && Date.now() - timestamp > DAY_IN_MS;
-        },
-      },
-    }).withContext(this);
-
-    this.docSetFeedService = interpret(this.docSetFeedMachine)
-      .onTransition((state: any, _event) => {
-        runInAction(() => (this.state = state));
-      })
-      .start();
+    );
   }
 
   async loadDocSetFeedDownloadedTimestamp(): Promise<void> {
@@ -174,7 +74,7 @@ export class DocSetFeedStore {
       this.send({ type: 'LOAD_DOWNLOADED_TIMESTAMP_FAILED' });
     }
     runInAction(() => {
-      this.loadingDocSetFeedDownloadedTimestamp = false; 
+      this.loadingDocSetFeedDownloadedTimestamp = false;
     });
   }
 
@@ -224,7 +124,7 @@ export class DocSetFeedStore {
     );
   }
 
-  send(event: any) {
+  send(event: DocSetFeedEvent) {
     this.docSetFeedService.send(event);
   }
 }

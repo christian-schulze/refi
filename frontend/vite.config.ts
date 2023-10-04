@@ -23,6 +23,7 @@ export default defineConfig(async () => ({
       routes: path.resolve(__dirname, 'src/routes'),
       screens: path.resolve(__dirname, 'src/screens'),
       services: path.resolve(__dirname, 'src/services'),
+      stateMachines: path.resolve(__dirname, 'src/stateMachines'),
       stores: path.resolve(__dirname, 'src/stores'),
       themes: path.resolve(__dirname, 'src/themes'),
     },
