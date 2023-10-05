@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { darken } from 'polished';
 import styled from '@emotion/styled';
 
-import { useStore } from 'stores';
+import { useStores } from 'stores';
 import { useTheme } from 'themes/utils';
 
 import { Typography } from 'components/Typography';
@@ -68,9 +68,7 @@ const SpinnerWrapper = styled(Spinner)`
 
 export const DocSetList = observer(() => {
   const theme = useTheme();
-  const docSetListStore = useStore('docSetList');
-  const docSetAliasStore = useStore('docSetAliases');
-  const tabsStore = useStore('tabs');
+  const { docSetListStore, docSetAliasStore, tabsStore } = useStores();
 
   const handleSelect: ListProps['onSelect'] = (name, _cause) => {
     const selectedDocSet = docSetListStore.docSets[name];

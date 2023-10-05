@@ -5,7 +5,7 @@ import { Resizable } from 're-resizable';
 import styled from '@emotion/styled';
 import Button from '@mui/material/Button';
 
-import { useStore } from 'stores';
+import { useStores } from 'stores';
 
 import { SettingsList } from 'components/Settings/SettingsList';
 import { GeneralSettingsPanel } from 'components/Settings/GeneralSettingsPanel';
@@ -34,8 +34,7 @@ const Footer = styled.div`
 `;
 
 export const SettingsScreen = observer(() => {
-  const settingsStore = useStore('settings');
-  const docSetAliasStore = useStore('docSetAliases');
+  const { settingsStore, docSetAliasStore } = useStores();
   const navigate = useNavigate();
 
   const handleSelect = (id: string) => {

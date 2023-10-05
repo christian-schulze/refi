@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { cx } from '@emotion/css';
 import styled from '@emotion/styled';
 
-import { useStore } from 'stores';
+import { useStores } from 'stores';
 
 import { Typography } from 'components/Typography';
 import { List, ListProps } from 'components/List';
@@ -28,7 +28,7 @@ export const DocSetSearchResults = observer<
   HTMLDivElement
 >(
   forwardRef(({ className, onBlur, onCancel, onSelect }, ref) => {
-    const tabsStore = useStore('tabs');
+    const { tabsStore } = useStores();
 
     const handleSelect: ListProps['onSelect'] = (name, selectionType) => {
       tabsStore.currentTab?.setSelectedSearchResult(name);

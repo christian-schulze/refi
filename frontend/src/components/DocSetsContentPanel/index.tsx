@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
 
-import { useStore } from 'stores';
+import { useStores } from 'stores';
 import { Header, HeaderProps } from './Header';
 
 const Container = styled.div`
@@ -19,7 +19,7 @@ const IFrame = styled.iframe`
 `;
 
 export const DocSetsContentPanel = observer(() => {
-  const tabsStore = useStore('tabs');
+  const { tabsStore } = useStores();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const handleClickBack: HeaderProps['onClickBack'] = (_event) => {

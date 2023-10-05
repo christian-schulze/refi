@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import { Outlet } from 'react-router'; 
+import { Outlet } from 'react-router';
 import styled from '@emotion/styled';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 
-import { useStore } from 'stores';
+import { useStores } from 'stores';
 
 import { TitleBar } from 'components/TitleBar';
 
@@ -19,11 +19,13 @@ const Container = styled.div`
 `;
 
 export const Root = observer(() => {
-  const docSetAliasStore = useStore('docSetAliases');
-  const docSetFeedStore = useStore('docSetFeed');
-  const docSetListStore = useStore('docSetList');
-  const errorsStore = useStore('errors');
-  const settingsStore = useStore('settings');
+  const {
+    docSetAliasStore,
+    docSetFeedStore,
+    docSetListStore,
+    errorsStore,
+    settingsStore,
+  } = useStores();
 
   useEffect(() => {
     (async () => {

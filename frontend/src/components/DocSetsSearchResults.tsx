@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import { cx } from '@emotion/css';
 import styled from '@emotion/styled';
 
-import { useStore } from 'stores';
+import { useStores } from 'stores';
 
 import { Typography } from 'components/Typography';
 import { List, ListProps } from 'components/List';
@@ -29,8 +29,7 @@ export const DocSetsSearchResults = observer<
   HTMLDivElement
 >(
   forwardRef(({ className, onBlur, onCancel, onSelect }, ref) => {
-    const docSetListStore = useStore('docSetList');
-    const docSetAliasStore = useStore('docSetAliases');
+    const { docSetListStore, docSetAliasStore } = useStores();
 
     const theme = useTheme();
 

@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
 
-import { useStore } from 'stores';
+import { useStores } from 'stores';
 
 import { Typography } from 'components/Typography';
 import { InstalledDocSetList } from './InstalledDocSetList';
@@ -45,7 +45,7 @@ const formatTime = (date: Date) => {
 };
 
 export const DocSets = observer(() => {
-  const docSetFeedStore = useStore('docSetFeed');
+  const { docSetFeedStore } = useStores();
 
   const renderDownloadedTimestamp = () => {
     if (docSetFeedStore.loadingDocSetFeedDownloadedTimestamp) {

@@ -7,7 +7,7 @@ import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 
-import { useStore } from 'stores';
+import { useStores } from 'stores';
 
 import { Typography } from 'components/Typography';
 import { List, ListProps } from 'components/List';
@@ -69,9 +69,7 @@ const ActionsSection = styled.div`
 `;
 
 export const AvailableDocSetList = observer(() => {
-  const docSetFeedStore = useStore('docSetFeed');
-  const docSetManagerStore = useStore('docSetManager');
-  const docSetListStore = useStore('docSetList');
+  const { docSetFeedStore, docSetManagerStore, docSetListStore } = useStores();
 
   const [filterValue, setFilterValue] = useState('');
   const [filteredDocSetNames, setFilteredDocSetNames] = useState<Array<string>>(
@@ -164,7 +162,7 @@ export const AvailableDocSetList = observer(() => {
         items={filteredDocSetNames.map((name) => {
           return (
             <DocSetListItem data-id={name} key={name}>
-              <Typography variant='body'>{name}</Typography>
+              <Typography variant="body">{name}</Typography>
               <ActionsSection>
                 {docSetManagerStore.docSetDownloadProgress[name] ? (
                   <Chip

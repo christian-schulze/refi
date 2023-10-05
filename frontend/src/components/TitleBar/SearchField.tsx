@@ -13,7 +13,7 @@ import styled from '@emotion/styled';
 import { darken } from 'polished';
 
 import { openDB, searchDocSet } from 'services/db';
-import { useStore } from 'stores';
+import { useStores } from 'stores';
 
 import { DocSetSearchResults } from 'components/DocSetSearchResults';
 import { DocSetsSearchResults } from 'components/DocSetsSearchResults';
@@ -60,10 +60,8 @@ const SearchResultsContainer = styled.div`
 
 export const SearchField = observer(() => {
   const dbRef = useRef<string | null>(null);
-  const tabsStore = useStore('tabs');
-  const docSetListStore = useStore('docSetList');
-  const docSetAliasStore = useStore('docSetAliases');
-  const errorsStore = useStore('errors');
+  const { tabsStore, docSetListStore, docSetAliasStore, errorsStore } =
+    useStores();
   const searchInputRef = useRef<HTMLInputElement>(null);
   const searchTextTimeoutIdRef = useRef<NodeJS.Timeout | null>(null);
   const [query, setQuery] = useState('');

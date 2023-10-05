@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { Context, createContext, useContext } from 'react';
 
 import { DocSetAliasStore } from './DocSetAliasStore';
 import { DocSetManagerStore } from './DocSetManagerStore';
@@ -17,19 +17,16 @@ const docSetListStore = new DocSetListStore(errorsStore, settingsStore);
 const docSetFeedStore = new DocSetFeedStore(errorsStore, settingsStore);
 
 export const stores = {
-  docSetAliases: docSetAliasStore,
-  docSetManager: docSetManagerStore,
-  docSetFeed: docSetFeedStore,
-  docSetList: docSetListStore,
-  errors: errorsStore,
-  settings: settingsStore,
-  tabs: tabsStore,
+  docSetAliasStore,
+  docSetManagerStore,
+  docSetFeedStore,
+  docSetListStore,
+  errorsStore,
+  settingsStore,
+  tabsStore,
 };
 
-export const storesContext = createContext(stores);
+export const storesContext: Context<typeof stores> = createContext(stores);
 export const StoresProvider = storesContext.Provider;
 
 export const useStores = () => useContext(storesContext);
-
-export const useStore = <T extends keyof typeof stores>(storeName: T) =>
-  useContext(storesContext)[storeName];

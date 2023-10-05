@@ -13,7 +13,7 @@ import styled from '@emotion/styled';
 
 import { Input } from 'components/Input';
 
-import { useStore } from 'stores';
+import { useStores } from 'stores';
 
 const DocSetAlias = styled.div<{ alias: string }>`
   padding-left: 4px;
@@ -42,7 +42,7 @@ export interface EditDocSetAliasInputProps {
 
 export const EditDocSetAliasInput = observer(
   ({ name }: EditDocSetAliasInputProps) => {
-    const docSetAliasStore = useStore('docSetAliases');
+    const { docSetAliasStore } = useStores();
     const editAliasInputRef = useRef<HTMLInputElement>(null);
     const [editedAlias, setEditedAlias] = useState('');
     const [isEditingAlias, setIsEditingAlias] = useState(false);

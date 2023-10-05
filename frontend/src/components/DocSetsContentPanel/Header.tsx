@@ -8,7 +8,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import { Typography } from 'components/Typography';
 
-import { useStore } from 'stores';
+import { useStores } from 'stores';
 
 const Container = styled.div`
   display: flex;
@@ -74,7 +74,7 @@ export interface HeaderProps {
 }
 
 export const Header = observer(({ onClickBack, onClickForward }: HeaderProps) => {
-  const tabsStore = useStore('tabs');
+  const { tabsStore } = useStores();
 
   const handleClickClose = (id: string) => (_event: MouseEvent<SVGSVGElement>) => {
     tabsStore.closeTabById(id);

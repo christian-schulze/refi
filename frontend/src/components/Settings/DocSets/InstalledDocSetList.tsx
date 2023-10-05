@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
-import { useStore } from 'stores';
+import { useStores } from 'stores';
 
 import { Typography } from 'components/Typography';
 import { List } from 'components/List';
@@ -75,7 +75,7 @@ const ActionsSection = styled.div`
 `;
 
 export const InstalledDocSetList = observer(() => {
-  const docSetListStore = useStore('docSetList');
+  const { docSetListStore } = useStores();
 
   const [selectedDocSetName, setSelectedDocSetName] = useState('');
 
