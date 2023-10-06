@@ -4,8 +4,11 @@ import { observer } from 'mobx-react-lite';
 import { darken, lighten } from 'polished';
 import styled from '@emotion/styled';
 import Chip from '@mui/material/Chip';
+import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
-import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import DownloadIcon from '@mui/icons-material/Download';
+
+import { DotsSpinnerIcon } from 'components/icons/DotsSpinnerIcon';
 
 import { useStores } from 'stores';
 
@@ -169,13 +172,28 @@ export const AvailableDocSetList = observer(() => {
                 {docSetManagerStore.docSetDownloadProgress[name] ? (
                   <Chip
                     color="success"
-                    label={docSetManagerStore.docSetDownloadProgress[name]}
+                    icon={<DotsSpinnerIcon />}
+                    label={
+                      docSetManagerStore.docSetDownloadProgress[name] + '%'
+                    }
                     size="small"
                   />
                 ) : (
-                  <IconButton onClick={handleClickDownload(name)} size="small">
-                    <CloudDownloadIcon sx={{ color: 'green' }} />
-                  </IconButton>
+                  <Tooltip
+                    title={
+                      <>
+                        Download the <b>"{name}"</b> DocSet.
+                      </>
+                    }
+                    placement="left"
+                  >
+                    <IconButton
+                      onClick={handleClickDownload(name)}
+                      size="small"
+                    >
+                      <DownloadIcon sx={{ color: 'green' }} />
+                    </IconButton>
+                  </Tooltip>
                 )}
               </ActionsSection>
             </DocSetListItem>

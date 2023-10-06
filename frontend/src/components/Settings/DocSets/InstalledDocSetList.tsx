@@ -2,8 +2,10 @@ import { MouseEvent, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { lighten } from 'polished';
 import styled from '@emotion/styled';
+import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import UpgradeIcon from '@mui/icons-material/Upgrade';
 
 import { useStores } from 'stores';
 
@@ -83,6 +85,11 @@ export const InstalledDocSetList = observer(() => {
     setSelectedDocSetName(name);
   };
 
+  const handleClickUpdate =
+    (_name: string) => (event: MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+    };
+
   const handleClickDelete =
     (name: string) => (event: MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
@@ -104,9 +111,38 @@ export const InstalledDocSetList = observer(() => {
             <Typography variant="body">{docSet.title}</Typography>
             <EditDocSetAliasInput name={docSet.name} />
             <ActionsSection>
-              <IconButton onClick={handleClickDelete(docSet.name)} size="small">
-                <CloseIcon sx={{ color: 'red' }} />
-              </IconButton>
+              {docSet.updatable && (
+                <Tooltip
+                  title={
+                    <>
+                      Update the <b>"{docSet.title}"</b> DocSet.
+                    </>
+                  }
+                  placement="left"
+                >
+                  <IconButton
+                    onClick={handleClickUpdate(docSet.name)}
+                    size="small"
+                  >
+                    <UpgradeIcon sx={{ color: 'text.primary' }} />
+                  </IconButton>
+                </Tooltip>
+              )}
+              <Tooltip
+                title={
+                  <>
+                    Delete the <b>"{docSet.title}"</b> DocSet.
+                  </>
+                }
+                placement="left"
+              >
+                <IconButton
+                  onClick={handleClickDelete(docSet.name)}
+                  size="small"
+                >
+                  <CloseIcon sx={{ color: 'red' }} />
+                </IconButton>
+              </Tooltip>
             </ActionsSection>
           </DocSetListItem>
         );

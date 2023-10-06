@@ -1,4 +1,7 @@
-import { DownloadFeedArchive, ReadFeedArchive } from '../../wailsjs/go/docsets/DocSets';
+import {
+  DownloadFeedArchive,
+  ReadFeedArchive,
+} from '../../wailsjs/go/docsets/DocSets';
 import {
   doesPathExist,
   getDocSetFeedPath,
@@ -37,6 +40,5 @@ export const downloadDocSetFeed = async (
 
 export const readDocSetFeedArchive = async (): Promise<DocSetFeed> => {
   const docSetFeedPath = await getDocSetFeedPath();
-  const docSets = await ReadFeedArchive(docSetFeedPath);
-  return docSets;
+  return await ReadFeedArchive(docSetFeedPath);
 };

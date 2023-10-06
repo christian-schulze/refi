@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
+import { reaction } from 'mobx';
 import { Outlet } from 'react-router';
 import styled from '@emotion/styled';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 
+import { checkForUpdatableDocSets } from 'services/docSetUpdater';
 import { useStores } from 'stores';
 
 import { TitleBar } from 'components/TitleBar';
@@ -34,6 +36,16 @@ export const Root = observer(() => {
       await docSetAliasStore.loadAliases();
       docSetFeedStore.loadDocSetFeed();
     })();
+  }, []);
+
+  useEffect(() => {
+    return reaction(
+      () => docSetFeedStore.state,
+      (state, prev) => {
+      if (state === 'inactive' && prev !== 'inactive') {
+        checkForUpdatableDocSets(docSetListStore, docSetFeedStore);
+      }
+    });
   }, []);
 
   const handleCloseSnackbar = () => {

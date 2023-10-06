@@ -7,6 +7,9 @@ export class DocSetStore {
   path: string = '';
   relativeHtmlIndexPath: string = '';
   title: string = '';
+  version: string = '';
+  feedEntryName: string = '';
+  updatable: boolean = false;
 
   constructor(docSet: DocSet) {
     makeObservable(this, {
@@ -14,15 +17,21 @@ export class DocSetStore {
       path: observable,
       relativeHtmlIndexPath: observable,
       title: observable,
+      version: observable,
+      feedEntryName: observable,
+      updatable: observable,
+
       setDocSet: action,
+      setUpdatable: action,
+
+      resourcesPath: computed,
       dbPath: computed,
+      tokensXmlPath: computed,
       documentsPath: computed,
       htmlIndexPath: computed,
       iconPath: computed,
     });
-    if (docSet) {
-      this.setDocSet(docSet);
-    }
+    this.setDocSet(docSet);
   }
 
   setDocSet(docSet: DocSet) {
@@ -30,7 +39,13 @@ export class DocSetStore {
     this.path = docSet.path;
     this.relativeHtmlIndexPath = docSet.relativeHtmlIndexPath;
     this.title = docSet.title;
+    this.version = docSet.version;
+    this.feedEntryName = docSet.feedEntryName;
     return this;
+  }
+
+  setUpdatable(updatable: boolean) {
+    this.updatable = updatable;
   }
 
   get resourcesPath() {

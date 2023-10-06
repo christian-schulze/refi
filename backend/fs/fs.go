@@ -29,7 +29,7 @@ func (a *FS) DoesPathExist(fullPath string) bool {
 }
 
 func (a *FS) CreateDir(fullPath string) {
-	os.MkdirAll(fullPath, os.ModeDir)
+	os.MkdirAll(fullPath, 0755)
 }
 
 func (a *FS) RemoveDir(path string) {
@@ -57,7 +57,7 @@ func (a *FS) ReadTextFile(filePath string) string {
 }
 
 func (a *FS) WriteFile(filePath string, data string) {
-	err := os.WriteFile(filePath, []byte(data), os.ModePerm)
+	err := os.WriteFile(filePath, []byte(data), 0644)
 	if err != nil {
 		runtime.LogErrorf(a.ctx, "WriteFile: Error writing file \"%s\"\n%s", filePath, err.Error())
 	}

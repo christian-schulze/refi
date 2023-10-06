@@ -46,6 +46,7 @@ export class DocSetFeedStore {
       downloadingDocSetFeed: observable,
       docSetFeedEntries: observable,
       loadingDocSetFeed: observable,
+      state: observable,
 
       loadDocSetFeedDownloadedTimestamp: action,
       downloadDocSetFeed: action,
@@ -56,7 +57,10 @@ export class DocSetFeedStore {
     this.docSetFeedService = interpretStateMachine(
       this.docSetFeedMachine,
       (state, _event) => {
-        runInAction(() => (this.state = state.value as DocSetFeedState));
+        runInAction(() => {
+          console.log('docSetFeedMachine', state.value);
+          this.state = state.value as DocSetFeedState
+        });
       },
     );
   }

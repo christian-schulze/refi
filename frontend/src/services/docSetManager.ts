@@ -5,10 +5,12 @@ import {
   DownloadFile,
   GetDownloadedDocSetPaths,
 } from '../../wailsjs/go/docsets/DocSets';
-import { doesPathExist } from './path';
-import { readPListFile } from './plistParser';
 
-export interface UploadEventPayload {
+import { doesPathExist, splitPathAndBaseName } from './path';
+import { readPListFile } from './plistParser';
+import { readTextFile } from './fs';
+
+export interface DownloadEventPayload {
   id: string;
   progress: number;
   total: number;
@@ -21,16 +23,18 @@ export interface DocSet {
   path: string;
   relativeHtmlIndexPath: string;
   title: string;
+  version: string;
+  feedEntryName: string;
 }
 
 const handlers = new Map<string, ProgressHandler>();
 let listening = false;
 
-function listenToUploadEventIfNeeded(): void {
+function listenToDownloadEventIfNeeded(): void {
   if (listening) {
     return;
   }
-  EventsOn('file_downloader|progress', (payload: UploadEventPayload) => {
+  EventsOn('file_downloader|progress', (payload: DownloadEventPayload) => {
     const handler = handlers.get(payload.id);
     if (handler !== void 0) {
       handler(payload.progress, payload.total);
@@ -48,7 +52,7 @@ export const downloadDocSet = (
     handlers.set(url, progressHandler);
   }
 
-  listenToUploadEventIfNeeded();
+  listenToDownloadEventIfNeeded();
 
   return DownloadFile(url, url, destinationPath)
     .then((error) => {
@@ -98,12 +102,14 @@ export const downloadDocSetIcons = async (
   const icon2xUrl = `${iconsUrl}${docSetName.toLowerCase()}@2x.png`;
   const icon2xPath = `${destinationPath}${window.pathSeperator}icon@2x.png`;
   if (!(await doesPathExist(icon2xPath))) {
-    promises.push(DownloadFile(icon2xUrl, icon2xUrl, icon2xPath).then((error) => {
-      if (error !== '') {
-        return Promise.reject(error);
-      }
-      return '';
-    }));
+    promises.push(
+      DownloadFile(icon2xUrl, icon2xUrl, icon2xPath).then((error) => {
+        if (error !== '') {
+          return Promise.reject(error);
+        }
+        return '';
+      }),
+    );
   }
 
   return Promise.all(promises);
@@ -117,14 +123,23 @@ export const loadDocSet = async (docSetPath: string): Promise<DocSet> => {
   const indexPList = await readPListFile(
     `${docSetPath}${window.pathSeperator}Contents${window.pathSeperator}Info.plist`,
   );
+  const version = await readTextFile(
+    `${docSetPath}${window.pathSeperator}version`,
+  );
+  const feedEntryName = splitPathAndBaseName(docSetPath)[1].replace(
+    '.docset',
+    '',
+  );
 
   return {
     name: indexPList.CFBundleIdentifier.toString(),
     path: docSetPath,
     relativeHtmlIndexPath: indexPList.dashIndexFilePath.toString(),
     title: indexPList.CFBundleName.toString(),
+    version,
+    feedEntryName,
   };
-}
+};
 
 export const loadDocSets = async (path: string): Promise<Array<DocSet>> => {
   const docSetPaths = await GetDownloadedDocSetPaths(path);

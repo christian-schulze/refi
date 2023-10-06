@@ -9,6 +9,7 @@ const ListWrapper = styled(List)`
   background-color: ${({ theme }) => theme.palette.background.default};
   border: 1px solid transparent;
   border-radius: 4px;
+  margin-right: 2px;
 
   :focus {
     border-color: ${({ theme }) => theme.palette.secondary.main};
