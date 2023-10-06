@@ -124,6 +124,15 @@ export class DocSetFeedStore {
     );
   }
 
+  getDocSetVersion(name: string): string {
+    const domParser = new DOMParser();
+    const xmlDocument = domParser.parseFromString(
+      this.docSetFeedEntries[name],
+      'application/xml',
+    );
+    return xmlDocument.querySelector('entry > version')?.innerHTML || '';
+  }
+
   send(event: DocSetFeedEvent) {
     this.docSetFeedService.send(event);
   }

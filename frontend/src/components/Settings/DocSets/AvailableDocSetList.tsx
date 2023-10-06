@@ -110,10 +110,12 @@ export const AvailableDocSetList = observer(() => {
   const handleClickDownload =
     (name: string) => async (_event: MouseEvent<HTMLButtonElement>) => {
       const urls = docSetFeedStore.getDocSetUrls(name);
+      const version = docSetFeedStore.getDocSetVersion(name);
       if (urls.length > 0) {
         await docSetManagerStore.downloadDocSet(
           urls[0],
           name,
+          version,
           (progress, total) => {
             docSetManagerStore.updateDownloadProgress(
               name,

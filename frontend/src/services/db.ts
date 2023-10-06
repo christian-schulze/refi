@@ -12,7 +12,7 @@ export const createFuzzySearchIndex = async (dbPath: string) => {
   if (error) {
     throw new Error(error);
   }
-}
+};
 
 export const importSearchIndex = async (
   dbPath: string,
@@ -48,3 +48,6 @@ export const tableExists = async (
 ): Promise<boolean> => {
   return TableExists(dbPath, tableName);
 };
+
+export const tableDoesNotExist = async (dbPath: string, tableName: string) =>
+  !(await TableExists(dbPath, tableName));

@@ -1,12 +1,8 @@
 import { action, makeObservable, observable, runInAction } from 'mobx';
 
 import { doesPathExist } from 'services/path';
-import { removeFile } from 'services/fs';
-import {
-  importSearchIndex,
-  openDB,
-  tableExists,
-} from 'services/db';
+import { removeFile, writeFile } from 'services/fs';
+import { importSearchIndex, openDB, tableDoesNotExist } from 'services/db';
 import {
   decompressDocSetArchive,
   downloadDocSet,
@@ -46,6 +42,7 @@ export class DocSetManagerStore {
   async downloadDocSet(
     url: string,
     name: string,
+    version: string,
     progressHandler: ProgressHandler,
   ) {
     try {
@@ -60,14 +57,21 @@ export class DocSetManagerStore {
         const docSetPath = `${docSetsPath}${window.pathSeperator}${name}.docset`;
         await downloadDocSet(url, docSetArchivePath, progressHandler);
         await decompressDocSetArchive(docSetArchivePath, docSetsPath);
+        await writeFile(
+          `${docSetPath}${window.pathSeperator}/version`,
+          version,
+        );
         await downloadDocSetIcons(docSetsIconsUrl, name, docSetPath);
         await removeFile(docSetArchivePath);
 
+        // Some DocSets don't have a `searchIndex` table in the provided sqlite database, javascript, html, css are
+        // some examples. These do appear to have an XML file containing enough data to rebuild the `searchIndex`
+        // table, so we attempt to do that here.
         const docSet = await loadDocSet(docSetPath);
         const docSetStore = new DocSetStore(docSet);
         await openDB(docSetStore.dbPath);
         if (
-          !(await tableExists(docSetStore.dbPath, 'searchIndex')) &&
+          (await tableDoesNotExist(docSetStore.dbPath, 'searchIndex')) &&
           (await doesPathExist(docSetStore.tokensXmlPath))
         ) {
           await importSearchIndex(
@@ -76,7 +80,7 @@ export class DocSetManagerStore {
           );
         }
 
-        // experimenting with spellfix sqlite extension for fuzzy matching
+        // TODO: experimenting with spellfix sqlite extension for fuzzy matching
         // await createFuzzySearchIndex(docSetStore.dbPath);
 
         runInAction(() => {

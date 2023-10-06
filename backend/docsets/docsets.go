@@ -79,20 +79,20 @@ func (a *DocSets) DownloadFile(eventId string, url string, filePath string) stri
 func (a *DocSets) DecompressDocSetArchive(tarFilePath string, dirPath string) string {
 	f, err := os.OpenFile(tarFilePath, os.O_RDONLY, 0644)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "UntarDocSet: Error opening tar file \"%s\"\n%s", tarFilePath, err)
+		runtime.LogErrorf(a.ctx, "DecompressDocSetArchive: Error opening tar file \"%s\"\n%s", tarFilePath, err)
 		return err.Error()
 	}
 
 	r := bufio.NewReader(f)
 	gzipReader, err := gzip.NewReader(r)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "UntarDocSet: Error creating gzip reader \"%s\"\n%s", tarFilePath, err)
+		runtime.LogErrorf(a.ctx, "DecompressDocSetArchive: Error creating gzip reader \"%s\"\n%s", tarFilePath, err)
 		return err.Error()
 	}
 
 	err = untar(gzipReader, dirPath)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "UntarDocSet: Error extracting tar file \"%s\"\n%s", tarFilePath, err)
+		runtime.LogErrorf(a.ctx, "DecompressDocSetArchive: Error extracting tar file \"%s\"\n%s", tarFilePath, err)
 		return err.Error()
 	}
 
