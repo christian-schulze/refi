@@ -51,15 +51,15 @@ export const getDefaultDocSetsDir = async (): Promise<string> => {
 };
 
 export const getDocSetFeedPath = async (): Promise<string> => {
-  const configDir = await getConfigDir();
+  const dataDir = await getDataDir();
 
-  return `${configDir}${window.pathSeperator}feed.zip`;
+  return `${dataDir}${window.pathSeperator}feed.zip`;
 };
 
 export const getDocSetFeedTimestampPath = async (): Promise<string> => {
-  const configDir = await getConfigDir();
+  const dataDir = await getDataDir();
 
-  return `${configDir}${window.pathSeperator}feed-timestamp.json`;
+  return `${dataDir}${window.pathSeperator}feed-timestamp.json`;
 };
 
 export const getDocSetAliasConfigPath = async (): Promise<string> => {
