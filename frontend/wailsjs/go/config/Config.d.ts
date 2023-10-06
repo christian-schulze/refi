@@ -3,8 +3,8 @@
 import {config} from '../models';
 import {context} from '../models';
 
-export function LoadSettings(arg1:string):Promise<config.ConfigObject>;
+export function LoadSettings(arg1:string):Promise<config.LoadSettingsResult>;
 
 export function Startup(arg1:context.Context):Promise<void>;
 
-export function WriteSettings(arg1:string,arg2:config.ConfigObject):Promise<void>;
+export function WriteSettings(arg1:string,arg2:config.ConfigObject):Promise<string>;

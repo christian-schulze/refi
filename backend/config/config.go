@@ -3,6 +3,7 @@ package config
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/BurntSushi/toml"
@@ -27,24 +28,37 @@ type ConfigObject struct {
 	DocSetsPath     string `json:"docSetsPath"`
 }
 
-func (a *Config) LoadSettings(filePath string) ConfigObject {
+type LoadSettingsResult struct {
+	Config ConfigObject `json:"config"`
+	Error  string       `json:"error"`
+}
+
+func (a *Config) LoadSettings(filePath string) LoadSettingsResult {
 	var decoded ConfigObject
 	_, err := toml.DecodeFile(filePath, &decoded)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "Error reading file \"%s\"\n%s", filePath, err.Error())
+		message := fmt.Sprintf("LoadSettings: Error reading file \"%s\"\n%s", filePath, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return LoadSettingsResult{Error: message}
 	}
 
-	return decoded
+	return LoadSettingsResult{Config: decoded}
 }
 
-func (a *Config) WriteSettings(filePath string, config ConfigObject) {
+func (a *Config) WriteSettings(filePath string, config ConfigObject) string {
 	buffer := new(bytes.Buffer)
 	err := toml.NewEncoder(buffer).Encode(config)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "Error encoding TOML\n%s", err)
+		message := fmt.Sprintf("LoadSettings: Error encoding TOML\n%s", err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return message
 	}
-	os.WriteFile(filePath, buffer.Bytes(), 0644)
+	err = os.WriteFile(filePath, buffer.Bytes(), 0644)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "Error writing file \"%s\"\n%s", filePath, err)
+		message := fmt.Sprintf("LoadSettings: Error writing file \"%s\"\n%s", filePath, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return message
 	}
+
+	return ""
 }
