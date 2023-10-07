@@ -30,6 +30,10 @@ export function RemoveFile(arg1) {
   return window['go']['fs']['FS']['RemoveFile'](arg1);
 }
 
+export function Rename(arg1, arg2) {
+  return window['go']['fs']['FS']['Rename'](arg1, arg2);
+}
+
 export function Startup(arg1) {
   return window['go']['fs']['FS']['Startup'](arg1);
 }

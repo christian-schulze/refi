@@ -1,4 +1,5 @@
 import { SearchResult } from 'stores/TabStore';
+
 import {
   CreateFuzzySearchIndex,
   ImportSearchIndex,

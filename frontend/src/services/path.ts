@@ -3,8 +3,9 @@ import {
   GetUserConfigDir,
   GetUserDataDir,
 } from '../../wailsjs/go/main/App';
-import { createDir } from './fs';
 import { DoesPathExist } from '../../wailsjs/go/fs/FS';
+
+import { createDir } from './fs';
 
 const CONFIG_FILE_NAME = 'config.toml';
 
@@ -16,10 +17,12 @@ export const splitPathAndBaseName = (fullPath: string): [string, string] => {
   return [path, baseName];
 };
 
-export const doesPathExist = DoesPathExist;
+export const doesPathExist = (path: string) => DoesPathExist(path);
 
 export const getConfigDir = async (ensureExists = true): Promise<string> => {
-  const configDir = `${await GetUserConfigDir()}${window.pathSeperator}${await GetAppName()}`;
+  const configDir = `${await GetUserConfigDir()}${
+    window.pathSeperator
+  }${await GetAppName()}`;
 
   if (ensureExists && !(await DoesPathExist(configDir))) {
     await createDir(configDir);
@@ -29,7 +32,9 @@ export const getConfigDir = async (ensureExists = true): Promise<string> => {
 };
 
 export const getDataDir = async (ensureExists = true): Promise<string> => {
-  const configDir = `${await GetUserDataDir()}${window.pathSeperator}${await GetAppName()}`;
+  const configDir = `${await GetUserDataDir()}${
+    window.pathSeperator
+  }${await GetAppName()}`;
 
   if (ensureExists && !(await DoesPathExist(configDir))) {
     await createDir(configDir);

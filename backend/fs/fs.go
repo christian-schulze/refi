@@ -2,6 +2,7 @@ package fs
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -28,44 +29,82 @@ func (a *FS) DoesPathExist(fullPath string) bool {
 	return !os.IsNotExist(err)
 }
 
-func (a *FS) CreateDir(fullPath string) {
-	os.MkdirAll(fullPath, 0755)
-}
-
-func (a *FS) RemoveDir(path string) {
-	err := os.RemoveAll(path)
+func (a *FS) CreateDir(path string) string {
+	err := os.MkdirAll(path, 0755)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "RemoveDir: Error removing dir \"%s\"\n%s", path, err.Error())
+		message := fmt.Sprintf("CreateDir: Error creating dir \"%s\"\n%s", path, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return message
 	}
+	return ""
 }
 
-func (a *FS) ReadDir(path string) []os.DirEntry {
+type ReadDirResult struct {
+	DirEntries []os.DirEntry `json:"dirEntries"`
+	Error      string        `json:"error"`
+}
+
+func (a *FS) ReadDir(path string) ReadDirResult {
 	dirEntries, err := os.ReadDir(path)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "ReadDir: Error reading dir \"%s\"\n%s", path, err.Error())
+		message := fmt.Sprintf("ReadDir: Error reading dir \"%s\"\n%s", path, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return ReadDirResult{Error: message}
 	}
-	return dirEntries
+	return ReadDirResult{DirEntries: dirEntries}
 }
 
-func (a *FS) ReadTextFile(filePath string) string {
-	data, err := os.ReadFile(filePath)
-	if err != nil {
-		runtime.LogErrorf(a.ctx, "ReadTextFile: Error reading file \"%s\"\n%s", filePath, err.Error())
-		data = []byte{}
-	}
-	return string(data)
+type ReadTextFileResult struct {
+	Data  string `json:"data"`
+	Error string `json:"error"`
 }
 
-func (a *FS) WriteFile(filePath string, data string) {
-	err := os.WriteFile(filePath, []byte(data), 0644)
+func (a *FS) ReadTextFile(path string) ReadTextFileResult {
+	data, err := os.ReadFile(path)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "WriteFile: Error writing file \"%s\"\n%s", filePath, err.Error())
+		message := fmt.Sprintf("ReadTextFile: Error reading file \"%s\"\n%s", path, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return ReadTextFileResult{Error: message}
 	}
+	return ReadTextFileResult{Data: string(data)}
 }
 
-func (a *FS) RemoveFile(filePath string) {
-	err := os.Remove(filePath)
+func (a *FS) RemoveDir(path string) string {
+	err := os.RemoveAll(path)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "RemoveFile: Error removing file \"%s\"\n%s", filePath, err.Error())
+		message := fmt.Sprintf("RemoveDir: Error removing dir \"%s\"\n%s", path, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return message
 	}
+	return ""
+}
+
+func (a *FS) RemoveFile(path string) string {
+	err := os.Remove(path)
+	if err != nil {
+		message := fmt.Sprintf("RemoveFile: Error removing file \"%s\"\n%s", path, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return message
+	}
+	return ""
+}
+
+func (a *FS) Rename(oldPath, newPath string) string {
+	err := os.Rename(oldPath, newPath)
+	if err != nil {
+		message := fmt.Sprintf("Rename: Error renaming \"%s\" to \"%s\"\n%s", oldPath, newPath, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return message
+	}
+	return ""
+}
+
+func (a *FS) WriteFile(path string, data string) string {
+	err := os.WriteFile(path, []byte(data), 0644)
+	if err != nil {
+		message := fmt.Sprintf("WriteFile: Error writing file \"%s\"\n%s", path, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return message
+	}
+	return ""
 }

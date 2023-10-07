@@ -1,14 +1,16 @@
 import { EventsOn } from '../../wailsjs/runtime';
-import { RemoveDir } from '../../wailsjs/go/fs/FS';
 import {
   DecompressDocSetArchive,
   DownloadFile,
   GetDownloadedDocSetPaths,
 } from '../../wailsjs/go/docsets/DocSets';
 
+import { DocSetListStore } from '../stores/DocSetListStore';
+import { DocSetFeedStore } from '../stores/DocSetFeedStore';
+
 import { doesPathExist, splitPathAndBaseName } from './path';
 import { readPListFile } from './plistParser';
-import { readTextFile } from './fs';
+import { readTextFile, removeDir } from './fs';
 
 export interface DownloadEventPayload {
   id: string;
@@ -116,7 +118,7 @@ export const downloadDocSetIcons = async (
 };
 
 export const deleteDocSet = async (docSetPath: string): Promise<void> => {
-  await RemoveDir(docSetPath);
+  await removeDir(docSetPath);
 };
 
 export const loadDocSet = async (docSetPath: string): Promise<DocSet> => {
@@ -151,4 +153,45 @@ export const loadDocSets = async (path: string): Promise<Array<DocSet>> => {
   }
 
   return docSets;
+};
+
+// Takes two version strings in the form x.y.z and compares them.
+// a > b return 1
+// a === b return 0
+// a < b return -1
+export const checkVersionString = (a: string, b: string) => {
+  const x = a.split('.').map((e) => parseInt(e, 10));
+  const y = b.split('.').map((e) => parseInt(e, 10));
+
+  for (const i in x) {
+    y[i] = y[i] || 0;
+
+    if (x[i] === y[i]) {
+      continue;
+    }
+
+    if (x[i] > y[i]) {
+      return 1;
+    }
+    return -1;
+  }
+
+  return y.length > x.length ? -1 : 0;
+};
+
+export const checkForUpdatableDocSets = (
+  docSetListStore: DocSetListStore,
+  docSetFeedStore: DocSetFeedStore,
+) => {
+  for (let name of Object.keys(docSetListStore.docSets)) {
+    const docSet = docSetListStore.docSets[name];
+    const currentVersion = docSet.version.replaceAll(/[\n\/]/g, '');
+    const latestVersion = docSetFeedStore
+      .getDocSetVersion(docSet.feedEntryName)
+      .replaceAll(/[\n\/]/g, '');
+
+    if (checkVersionString(latestVersion, currentVersion) === 1) {
+      docSet.setUpdatable(true);
+    }
+  }
 };

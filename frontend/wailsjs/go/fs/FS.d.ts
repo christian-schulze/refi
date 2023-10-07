@@ -3,20 +3,22 @@
 import {fs} from '../models';
 import {context} from '../models';
 
-export function CreateDir(arg1:string):Promise<void>;
+export function CreateDir(arg1:string):Promise<string>;
 
 export function DoesPathExist(arg1:string):Promise<boolean>;
 
 export function GetPathSeperator():Promise<string>;
 
-export function ReadDir(arg1:string):Promise<Array<fs.DirEntry>>;
+export function ReadDir(arg1:string):Promise<fs.ReadDirResult>;
 
-export function ReadTextFile(arg1:string):Promise<string>;
+export function ReadTextFile(arg1:string):Promise<fs.ReadTextFileResult>;
 
-export function RemoveDir(arg1:string):Promise<void>;
+export function RemoveDir(arg1:string):Promise<string>;
 
-export function RemoveFile(arg1:string):Promise<void>;
+export function RemoveFile(arg1:string):Promise<string>;
+
+export function Rename(arg1:string,arg2:string):Promise<string>;
 
 export function Startup(arg1:context.Context):Promise<void>;
 
-export function WriteFile(arg1:string,arg2:string):Promise<void>;
+export function WriteFile(arg1:string,arg2:string):Promise<string>;

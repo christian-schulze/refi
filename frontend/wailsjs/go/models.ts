@@ -108,3 +108,36 @@ export namespace db {
 
 }
 
+export namespace fs {
+	
+	export class ReadDirResult {
+	    dirEntries: any[];
+	    error: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ReadDirResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.dirEntries = source["dirEntries"];
+	        this.error = source["error"];
+	    }
+	}
+	export class ReadTextFileResult {
+	    data: string;
+	    error: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ReadTextFileResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.data = source["data"];
+	        this.error = source["error"];
+	    }
+	}
+
+}
+

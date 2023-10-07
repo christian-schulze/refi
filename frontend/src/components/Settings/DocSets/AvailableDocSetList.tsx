@@ -115,18 +115,7 @@ export const AvailableDocSetList = observer(() => {
       const urls = docSetFeedStore.getDocSetUrls(name);
       const version = docSetFeedStore.getDocSetVersion(name);
       if (urls.length > 0) {
-        await docSetManagerStore.downloadDocSet(
-          urls[0],
-          name,
-          version,
-          (progress, total) => {
-            docSetManagerStore.updateDownloadProgress(
-              name,
-              (progress / total) * 100,
-            );
-          },
-        );
-
+        await docSetManagerStore.installDocSet(urls[0], name, version);
         docSetListStore.loadDocSets();
       }
     };

@@ -2,6 +2,7 @@ import { MouseEvent, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { lighten } from 'polished';
 import styled from '@emotion/styled';
+import Chip from '@mui/material/Chip';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
@@ -12,6 +13,7 @@ import { useStores } from 'stores';
 import { Typography } from 'components/Typography';
 import { List } from 'components/List';
 import { EditDocSetAliasInput } from './EditDocSetAliasInput';
+import { DotsSpinnerIcon } from '../../icons/DotsSpinnerIcon.tsx';
 
 const DocSetListWrapper = styled(List)`
   flex-grow: 1;
@@ -77,7 +79,7 @@ const ActionsSection = styled.div`
 `;
 
 export const InstalledDocSetList = observer(() => {
-  const { docSetListStore } = useStores();
+  const { docSetFeedStore, docSetListStore, docSetManagerStore } = useStores();
 
   const [selectedDocSetName, setSelectedDocSetName] = useState('');
 
@@ -86,8 +88,11 @@ export const InstalledDocSetList = observer(() => {
   };
 
   const handleClickUpdate =
-    (_name: string) => (event: MouseEvent<HTMLButtonElement>) => {
+    (name: string) => async (event: MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
+      const docSet = docSetListStore.docSets[name];
+      await docSetManagerStore.updateDocSet(docSet, docSetFeedStore);
+      docSetListStore.loadDocSets();
     };
 
   const handleClickDelete =
@@ -106,12 +111,29 @@ export const InstalledDocSetList = observer(() => {
         </DocSetListHeader>
       }
       items={Object.values(docSetListStore.docSets).map((docSet) => {
+        const showUpateProgress =
+          docSet.feedEntryName in docSetManagerStore.docSetDownloadProgress;
+        const showUpdateIconButton = docSet.updatable && !showUpateProgress;
+        const showDeleteIconButton = !showUpateProgress;
+
         return (
           <DocSetListItem data-id={docSet.name} key={docSet.name}>
             <Typography variant="body">{docSet.title}</Typography>
             <EditDocSetAliasInput name={docSet.name} />
             <ActionsSection>
-              {docSet.updatable && (
+              {showUpateProgress && (
+                <Chip
+                  color="success"
+                  icon={<DotsSpinnerIcon />}
+                  label={
+                    docSetManagerStore.docSetDownloadProgress[
+                      docSet.feedEntryName
+                    ] + '%'
+                  }
+                  size="small"
+                />
+              )}
+              {showUpdateIconButton && (
                 <Tooltip
                   title={
                     <>
@@ -128,21 +150,23 @@ export const InstalledDocSetList = observer(() => {
                   </IconButton>
                 </Tooltip>
               )}
-              <Tooltip
-                title={
-                  <>
-                    Delete the <b>"{docSet.title}"</b> DocSet.
-                  </>
-                }
-                placement="left"
-              >
-                <IconButton
-                  onClick={handleClickDelete(docSet.name)}
-                  size="small"
+              {showDeleteIconButton && (
+                <Tooltip
+                  title={
+                    <>
+                      Delete the <b>"{docSet.title}"</b> DocSet.
+                    </>
+                  }
+                  placement="left"
                 >
-                  <CloseIcon sx={{ color: 'red' }} />
-                </IconButton>
-              </Tooltip>
+                  <IconButton
+                    onClick={handleClickDelete(docSet.name)}
+                    size="small"
+                  >
+                    <CloseIcon sx={{ color: 'red' }} />
+                  </IconButton>
+                </Tooltip>
+              )}
             </ActionsSection>
           </DocSetListItem>
         );

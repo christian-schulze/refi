@@ -1,18 +1,18 @@
-import { action, makeObservable, observable, runInAction } from 'mobx';
+import { action, makeObservable, observable } from 'mobx';
 
 import { doesPathExist } from 'services/path';
-import { removeFile, writeFile } from 'services/fs';
+import { removeDir, removeFile, rename, writeFile } from 'services/fs';
 import { importSearchIndex, openDB, tableDoesNotExist } from 'services/db';
 import {
   decompressDocSetArchive,
   downloadDocSet,
   downloadDocSetIcons,
   loadDocSet,
-  ProgressHandler,
 } from 'services/docSetManager';
 import { ErrorsStore } from './ErrorsStore';
 import { SettingsStore } from './SettingsStore';
 import { DocSetStore } from './DocSetStore';
+import { DocSetFeedStore } from './DocSetFeedStore';
 
 export class DocSetManagerStore {
   errorsStore: ErrorsStore;
@@ -29,25 +29,26 @@ export class DocSetManagerStore {
     makeObservable(this, {
       docSetDownloadProgress: observable,
       updateDownloadProgress: action,
-      downloadDocSet: action,
+      removeDownloadProgress: action,
+      installDocSet: action,
+      updateDocSet: action,
     });
   }
 
   updateDownloadProgress(name: string, progress: number) {
+    this.docSetDownloadProgress[name] = Math.round(progress);
+  }
+
+  removeDownloadProgress(name: string) {
     if (name in this.docSetDownloadProgress) {
-      this.docSetDownloadProgress[name] = Math.round(progress);
+      delete this.docSetDownloadProgress[name];
     }
   }
 
-  async downloadDocSet(
-    url: string,
-    name: string,
-    version: string,
-    progressHandler: ProgressHandler,
-  ) {
+  async installDocSet(url: string, name: string, version: string) {
     try {
       if (!(name in this.docSetDownloadProgress)) {
-        this.docSetDownloadProgress[name] = 0;
+        this.updateDownloadProgress(name, 0);
 
         const docSetsPath = this.settingsStore.docSetsPath;
         const docSetsIconsUrl = this.settingsStore.docSetsIconsUrl;
@@ -55,7 +56,9 @@ export class DocSetManagerStore {
         const fileExtension = new URL(url).pathname.split('.').at(-1);
         const docSetArchivePath = `${docSetsPath}${window.pathSeperator}${name}.${fileExtension}`;
         const docSetPath = `${docSetsPath}${window.pathSeperator}${name}.docset`;
-        await downloadDocSet(url, docSetArchivePath, progressHandler);
+        await downloadDocSet(url, docSetArchivePath, (progress, total) => {
+          this.updateDownloadProgress(name, (progress / total) * 100);
+        });
         await decompressDocSetArchive(docSetArchivePath, docSetsPath);
         await writeFile(
           `${docSetPath}${window.pathSeperator}/version`,
@@ -82,14 +85,27 @@ export class DocSetManagerStore {
 
         // TODO: experimenting with spellfix sqlite extension for fuzzy matching
         // await createFuzzySearchIndex(docSetStore.dbPath);
-
-        runInAction(() => {
-          delete this.docSetDownloadProgress[name];
-        });
       }
     } catch (error) {
       this.errorsStore.addError(error as Error);
-      delete this.docSetDownloadProgress[name];
+    } finally {
+      this.removeDownloadProgress(name);
+    }
+  }
+
+  async updateDocSet(docSet: DocSetStore, docSetFeedStore: DocSetFeedStore) {
+    try {
+      await rename(docSet.path, `${docSet.path}-old`);
+
+      const urls = docSetFeedStore.getDocSetUrls(docSet.feedEntryName);
+      const version = docSetFeedStore.getDocSetVersion(docSet.feedEntryName);
+      if (urls.length > 0) {
+        await this.installDocSet(urls[0], docSet.feedEntryName, version);
+      }
+
+      await removeDir(`${docSet.path}-old`);
+    } catch (error) {
+      this.errorsStore.addError(error as Error);
     }
   }
 }

@@ -2,10 +2,10 @@ import { cx, css } from '@emotion/css';
 
 const iconClassName = css`
   stroke: currentColor;
+  fill: currentColor;
 
   .spinner_first {
     animation: spinner_animation 0.8s linear infinite;
-    animation-delay: -0.8s;
   }
 
   .spinner_second {
@@ -19,7 +19,10 @@ const iconClassName = css`
   @keyframes spinner_animation {
     93.75%,
     100% {
-      opacity: 0.2;
+      r: 3px;
+    }
+    46.875% {
+      r: 0.2px;
     }
   }
 `;

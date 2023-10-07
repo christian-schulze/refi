@@ -1,4 +1,4 @@
-import { ReadTextFile } from '../../wailsjs/go/fs/FS';
+import { readTextFile } from './fs';
 
 type Value = string | number | boolean | Date | Data | ValueArray;
 type ValueArray = Array<Value>;
@@ -50,7 +50,7 @@ const parseDictionaryNode = (node: Element | null): Data => {
 };
 
 export const readPListFile = async (path: string): Promise<Data> => {
-  const xml = await ReadTextFile(path);
+  const xml = await readTextFile(path);
   const domParser = new DOMParser();
   const infoPListDocument = domParser.parseFromString(xml, 'application/xml');
 

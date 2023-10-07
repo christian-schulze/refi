@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 
-import { checkForUpdatableDocSets } from 'services/docSetUpdater';
+import { checkForUpdatableDocSets } from 'services/docSetManager';
 import { useStores } from 'stores';
 
 import { TitleBar } from 'components/TitleBar';
@@ -42,10 +42,11 @@ export const Root = observer(() => {
     return reaction(
       () => docSetFeedStore.state,
       (state, prev) => {
-      if (state === 'inactive' && prev !== 'inactive') {
-        checkForUpdatableDocSets(docSetListStore, docSetFeedStore);
-      }
-    });
+        if (state === 'inactive' && prev !== 'inactive') {
+          checkForUpdatableDocSets(docSetListStore, docSetFeedStore);
+        }
+      },
+    );
   }, []);
 
   const handleCloseSnackbar = () => {
