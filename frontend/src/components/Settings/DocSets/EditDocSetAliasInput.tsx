@@ -11,9 +11,9 @@ import { observer } from 'mobx-react-lite';
 import { darken, lighten } from 'polished';
 import styled from '@emotion/styled';
 
-import { Input } from 'components/Input';
-
 import { useStores } from 'stores';
+
+import { Input } from 'components/Input';
 
 const DocSetAlias = styled.div<{ alias: string }>`
   padding-left: 4px;

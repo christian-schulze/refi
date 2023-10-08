@@ -1,14 +1,15 @@
-import { forwardRef } from 'react';
+import { forwardRef, ForwardedRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import { cx } from '@emotion/css';
 import styled from '@emotion/styled';
 
 import { useStores } from 'stores';
+import { DocSetStore } from 'stores/DocSetStore';
+import { useTheme } from 'themes/utils';
 
 import { Typography } from 'components/Typography';
 import { List, ListProps } from 'components/List';
 import { SearchResultItem } from 'components/SearchResultItem';
-import { useTheme } from '../themes/utils.ts';
 
 const NoResults = styled.div`
   display: flex;
@@ -19,65 +20,71 @@ const NoResults = styled.div`
 
 export interface DocSetsSearchResultsProps {
   className?: string;
-  onBlur: ListProps['onBlur'];
-  onCancel: ListProps['onCancel'];
-  onSelect: ListProps['onSelect'];
+  onBlur: ListProps<DocSetStore>['onBlur'];
+  onCancel: ListProps<DocSetStore>['onCancel'];
+  onSelect: ListProps<DocSetStore>['onSelect'];
 }
 
-export const DocSetsSearchResults = observer<
-  DocSetsSearchResultsProps,
-  HTMLDivElement
->(
-  forwardRef(({ className, onBlur, onCancel, onSelect }, ref) => {
-    const { docSetListStore, docSetAliasStore } = useStores();
+const DocSetsSearchResultsInner = (
+  { className, onBlur, onCancel, onSelect }: DocSetsSearchResultsProps,
+  ref: ForwardedRef<HTMLDivElement>,
+) => {
+  const { docSetListStore, docSetAliasStore } = useStores();
 
-    const theme = useTheme();
+  const theme = useTheme();
 
-    const handleSelect: ListProps['onSelect'] = (name, selectionType) => {
-      docSetListStore.setSelectedSearchResult(name);
-      if (['mouse-click', 'enter-key'].includes(selectionType)) {
-        if (onSelect) {
-          onSelect(name, selectionType);
-        }
+  const handleSelect: ListProps<DocSetStore>['onSelect'] = (
+    selectedDocSet,
+    selectionType,
+  ) => {
+    docSetListStore.setSelectedSearchResult(selectedDocSet.name);
+    if (['mouse-click', 'enter-key'].includes(selectionType)) {
+      if (onSelect) {
+        onSelect(selectedDocSet, selectionType);
       }
-    };
-
-    if (docSetListStore.searchResults.length === 0) {
-      return (
-        <NoResults>
-          <Typography variant="body">No matching doc sets found.</Typography>
-        </NoResults>
-      );
     }
+  };
 
+  if (docSetListStore.searchResults.length === 0) {
     return (
-      <List
-        autoSelectOnFocus
-        className={cx('search-results-list', className)}
-        items={docSetListStore.searchResults.map((result) => {
-          return (
-            <SearchResultItem data-id={result.name} key={result.name}>
-              <Typography variant="body">{result.name}</Typography>
-              {docSetAliasStore.aliases[result.name] ? (
-                <Typography
-                  color={theme.palette.text.disabled}
-                  fontWeight="bolder"
-                  variant="body"
-                >
-                  &nbsp;({docSetAliasStore.aliases[result.name]}:)
-                </Typography>
-              ) : null}
-            </SearchResultItem>
-          );
-        })}
-        itemSize={24}
-        onBlur={onBlur}
-        onCancel={onCancel}
-        onSelect={handleSelect}
-        ref={ref}
-        selectedId={docSetListStore.selectedSearchResultName}
-        tabIndex={0}
-      />
+      <NoResults>
+        <Typography variant="body">No matching doc sets found.</Typography>
+      </NoResults>
     );
-  }),
+  }
+
+  return (
+    <List<DocSetStore>
+      autoSelectOnFocus
+      className={cx('search-results-list', className)}
+      items={docSetListStore.searchResults}
+      itemSize={24}
+      onBlur={onBlur}
+      onCancel={onCancel}
+      onSelect={handleSelect}
+      ref={ref}
+      renderItem={(result, props) => {
+        return (
+          <SearchResultItem key={result.name} {...props}>
+            <Typography variant="body">{result.name}</Typography>
+            {docSetAliasStore.aliases[result.name] ? (
+              <Typography
+                color={theme.palette.text.disabled}
+                fontWeight="bolder"
+                variant="body"
+              >
+                &nbsp;({docSetAliasStore.aliases[result.name]}:)
+              </Typography>
+            ) : null}
+          </SearchResultItem>
+        );
+      }}
+      selectedItem={docSetListStore.selectedSearchResult}
+      tabIndex={0}
+    />
+  );
+};
+
+export const DocSetsSearchResults = observer(
+  forwardRef(DocSetsSearchResultsInner),
 );

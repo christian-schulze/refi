@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
 
 import { useStores } from 'stores';
+
 import { Header, HeaderProps } from './Header';
 
 const Container = styled.div`

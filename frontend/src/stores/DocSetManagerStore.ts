@@ -9,6 +9,7 @@ import {
   downloadDocSetIcons,
   loadDocSet,
 } from 'services/docSetManager';
+
 import { ErrorsStore } from './ErrorsStore';
 import { SettingsStore } from './SettingsStore';
 import { DocSetStore } from './DocSetStore';

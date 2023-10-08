@@ -1,6 +1,13 @@
-import { action, makeObservable, observable, runInAction } from 'mobx';
+import {
+  action,
+  computed,
+  makeObservable,
+  observable,
+  runInAction,
+} from 'mobx';
 
 import { DocSet, deleteDocSet, loadDocSets } from 'services/docSetManager';
+
 import { DocSetStore } from './DocSetStore';
 import { ErrorsStore } from './ErrorsStore';
 import { SettingsStore } from './SettingsStore';
@@ -32,6 +39,7 @@ export class DocSetListStore {
       setSearchResults: action,
       clearSearchResults: action,
       setSelectedSearchResult: action,
+      selectedSearchResult: computed,
       loadDocSets: action,
       deleteDocSet: action,
     });
@@ -62,6 +70,12 @@ export class DocSetListStore {
     this.selectedSearchResultName = name;
   }
 
+  get selectedSearchResult() {
+    return this.searchResults.find(
+      (result) => result.name === this.selectedSearchResultName,
+    );
+  }
+
   async loadDocSets() {
     this.loading = true;
     try {
@@ -80,10 +94,11 @@ export class DocSetListStore {
       });
     } catch (error) {
       this.errorsStore.addError(error as Error);
+    } finally {
+      runInAction(() => {
+        this.loading = false;
+      });
     }
-    runInAction(() => {
-      this.loading = false;
-    });
   }
 
   async deleteDocSet(name: string) {

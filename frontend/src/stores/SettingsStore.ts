@@ -6,6 +6,7 @@ import {
   getConfigFilePath,
   getDefaultDocSetsDir,
 } from 'services/path';
+
 import { ErrorsStore } from './ErrorsStore';
 
 const DEFAULT_CONFIG = {
@@ -14,10 +15,20 @@ const DEFAULT_CONFIG = {
     'https://raw.githubusercontent.com/christian-schulze/Dash-X-Platform-Resources/master/docset_icons/',
 };
 
+export interface SettingsItem {
+  id: string;
+  label: string;
+}
+
+export const SettingsItems: Array<SettingsItem> = [
+  { id: 'settings-list-item-docsets', label: 'DocSets' },
+  { id: 'settings-list-item-general', label: 'General' },
+];
+
 export class SettingsStore {
   errorsStore: ErrorsStore;
 
-  selectedSectionId = 'settings-list-item-docsets';
+  selectedSettingsId = SettingsItems[0].id;
 
   docSetsFeedUrl = '';
   docSetsIconsUrl = '';
@@ -27,21 +38,21 @@ export class SettingsStore {
     this.errorsStore = errorsStore;
 
     makeObservable(this, {
-      selectedSectionId: observable,
+      selectedSettingsId: observable,
 
       docSetsFeedUrl: observable,
       docSetsIconsUrl: observable,
       docSetsPath: observable,
 
-      setSelectedSectionId: action,
+      setSelectedSettingsId: action,
 
       loadSettings: action,
       saveSettings: action,
     });
   }
 
-  setSelectedSectionId(sectionId: string) {
-    this.selectedSectionId = sectionId;
+  setSelectedSettingsId(id: string) {
+    this.selectedSettingsId = id;
   }
 
   async loadSettings() {

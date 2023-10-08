@@ -16,7 +16,7 @@ import { Typography } from 'components/Typography';
 import { List, ListProps } from 'components/List';
 import { Input } from 'components/Input';
 
-const DocSetListWrapper = styled(List)`
+const StyledDocSetList = styled(List)`
   flex-grow: 1;
   flex-shrink: 1;
   flex-basis: 0;
@@ -31,7 +31,7 @@ const DocSetListWrapper = styled(List)`
   :focus-within {
     border-color: ${({ theme }) => theme.palette.secondary.main};
   }
-`;
+` as typeof List;
 
 const DocSetListHeader = styled.div`
   display: flex;
@@ -57,8 +57,8 @@ const DocSetListItem = styled.div<{ selected?: boolean }>`
   ${({ selected, theme }) => {
     if (selected) {
       return `
-          background-color: ${theme.palette.secondary.main};
-        `;
+        background-color: ${theme.palette.secondary.main};
+      `;
     }
   }}
 `;
@@ -106,7 +106,7 @@ export const AvailableDocSetList = observer(() => {
     }
   };
 
-  const handleSelect: ListProps['onSelect'] = (name) => {
+  const handleSelect: ListProps<string>['onSelect'] = (name) => {
     setSelectedDocSetName(name);
   };
 
@@ -146,16 +146,19 @@ export const AvailableDocSetList = observer(() => {
           },
         }}
       />
-      <DocSetListWrapper
+      <StyledDocSetList<string>
         header={
           <DocSetListHeader>
             <Typography variant="subtitle2">Docset name</Typography>
             <ActionsSection />
           </DocSetListHeader>
         }
-        items={filteredDocSetNames.map((name) => {
+        items={filteredDocSetNames}
+        itemSize={24}
+        onSelect={handleSelect}
+        renderItem={(name, props) => {
           return (
-            <DocSetListItem data-id={name} key={name}>
+            <DocSetListItem key={name} {...props}>
               <Typography variant="body">{name}</Typography>
               <ActionsSection>
                 {docSetManagerStore.docSetDownloadProgress[name] ? (
@@ -187,10 +190,8 @@ export const AvailableDocSetList = observer(() => {
               </ActionsSection>
             </DocSetListItem>
           );
-        })}
-        itemSize={24}
-        onSelect={handleSelect}
-        selectedId={selectedDocSetName}
+        }}
+        selectedItem={selectedDocSetName}
         tabIndex={0}
       />
     </>

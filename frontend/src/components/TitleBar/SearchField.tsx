@@ -14,6 +14,8 @@ import { darken } from 'polished';
 
 import { openDB, searchDocSet } from 'services/db';
 import { useStores } from 'stores';
+import { SearchResult } from 'stores/TabStore';
+import { DocSetStore } from 'stores/DocSetStore';
 
 import { DocSetSearchResults } from 'components/DocSetSearchResults';
 import { DocSetsSearchResults } from 'components/DocSetsSearchResults';
@@ -295,14 +297,14 @@ export const SearchField = observer(() => {
     searchInputRef.current?.focus();
   };
 
-  const handleSelectSearchResult = (name: string) => {
+  const handleSelectSearchResult = (result: SearchResult | DocSetStore) => {
     if (tabsStore.currentTab && tabsStore.currentTab.docSetDetached) {
-      tabsStore.currentTab.setDocSet(docSetListStore.docSets[name]);
+      tabsStore.currentTab.setDocSet(docSetListStore.docSets[result.name]);
       docSetListStore.clearSearchResults();
     } else if (tabsStore.currentTab) {
-      tabsStore.currentTab.setVisibleSearchResult(name);
+      tabsStore.currentTab.setVisibleSearchResult(result.name);
     } else {
-      const docSet = docSetListStore.docSets[name];
+      const docSet = docSetListStore.docSets[result.name];
       tabsStore.addTab(docSet);
     }
     setSearchResultsOpen(false);

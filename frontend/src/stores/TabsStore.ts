@@ -1,8 +1,8 @@
 import { action, makeObservable, observable } from 'mobx';
 
-import { TabStore } from './TabStore.ts';
-import { ErrorsStore } from './ErrorsStore.ts';
-import { DocSetStore } from './DocSetStore.ts';
+import { TabStore } from './TabStore';
+import { ErrorsStore } from './ErrorsStore';
+import { DocSetStore } from './DocSetStore';
 
 export class TabsStore {
   errorsStore: ErrorsStore;

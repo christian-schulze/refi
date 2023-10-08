@@ -1,15 +1,29 @@
 import {
-  cloneElement,
+  CSSProperties,
   FocusEventHandler,
   forwardRef,
+  ForwardedRef,
   KeyboardEventHandler,
   MouseEventHandler,
   ReactElement,
+  ReactNode,
   useCallback,
+  useEffect,
   useRef,
+  useState,
 } from 'react';
 import { useVirtual } from 'react-virtual';
 import styled from '@emotion/styled';
+
+// The Typescript types for `forwardRef` do not support generic prop types.
+// We can work around this by augmenting the `forwardRef` type.
+// More detail can be found on this blog post:
+// https://fettblog.eu/typescript-react-generic-forward-refs/#option-3%3A-augment-forwardref
+declare module 'react' {
+  function forwardRef<T, P = {}>(
+    render: (props: P, ref: Ref<T>) => ReactNode | null,
+  ): (props: P & RefAttributes<T>) => ReactNode | null;
+}
 
 const Container = styled.div`
   display: flex;
@@ -27,131 +41,140 @@ export type SelectionCause =
   | 'mouse-click'
   | 'focus';
 
-export interface ListProps {
+export interface RenderItemProps {
+  onMouseDown: MouseEventHandler<HTMLElement>;
+  selected: boolean;
+  style: CSSProperties;
+}
+
+export interface ListProps<T> {
   autoSelectOnFocus?: boolean;
   className?: string;
   header?: ReactElement;
-  items?: Array<ReactElement>;
+  items?: Array<T>;
   itemSize: number;
   listClassName?: string;
   onBlur?: FocusEventHandler<HTMLDivElement>;
   onCancel?: () => void;
-  onSelect: (id: string, cause: SelectionCause) => void;
-  selectedId?: string;
+  onSelect: (item: T, cause: SelectionCause) => void;
+  renderItem: (item: T, props: RenderItemProps) => ReactNode;
+  selectedItem: T | null | undefined;
   tabIndex: number;
 }
 
-export const List = forwardRef<HTMLDivElement, ListProps>(
-  (
-    {
-      autoSelectOnFocus = true,
-      className,
-      header,
-      items = [],
-      itemSize,
-      listClassName,
-      onBlur,
-      onCancel,
-      onSelect,
-      selectedId = '',
-      tabIndex,
-    },
-    ref,
-  ) => {
-    const parentRef = useRef(null);
-    const selectedIndexRef = useRef(-1);
+const ListInner = <T,>(
+  {
+    autoSelectOnFocus = true,
+    className,
+    header,
+    items = [],
+    itemSize,
+    listClassName,
+    onBlur,
+    onCancel,
+    onSelect,
+    renderItem,
+    selectedItem,
+    tabIndex,
+  }: ListProps<T>,
+  ref: ForwardedRef<HTMLDivElement>,
+) => {
+  const parentRef = useRef(null);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
-    const rowVirtualizer = useVirtual({
-      estimateSize: useCallback(() => itemSize, []),
-      overscan: 5,
-      parentRef,
-      size: items.length,
-    });
-
-    const handleFocus: FocusEventHandler<HTMLDivElement> = (_event) => {
-      if (autoSelectOnFocus && !selectedId && items.length > 0) {
-        const id = items[0].props['data-id'];
-        selectedIndexRef.current = 0;
-        onSelect(id, 'focus');
+  useEffect(() => {
+    if (selectedItem) {
+      const index = items?.indexOf(selectedItem);
+      if (index > -1) {
+        setSelectedIndex(index);
       }
+    }
+  }, [selectedItem]);
+
+  const rowVirtualizer = useVirtual({
+    estimateSize: useCallback(() => itemSize, []),
+    overscan: 5,
+    parentRef,
+    size: items.length,
+  });
+
+  const handleFocus: FocusEventHandler<HTMLDivElement> = (_event) => {
+    if (autoSelectOnFocus && !selectedItem && items.length > 0) {
+      setSelectedIndex(0);
+      onSelect(items[0], 'focus');
+    }
+  };
+
+  const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (event) => {
+    if (['ArrowDown', 'ArrowUp'].includes(event.key)) {
+      event.preventDefault();
+      let newIndex = 0;
+      if (event.key === 'ArrowDown') {
+        newIndex = selectedIndex === items.length - 1 ? 0 : selectedIndex + 1;
+      } else if (event.key === 'ArrowUp') {
+        newIndex = selectedIndex === 0 ? items.length - 1 : selectedIndex - 1;
+      }
+      setSelectedIndex(newIndex);
+      rowVirtualizer.scrollToIndex(newIndex);
+      onSelect(items[newIndex], 'arrow-key');
+    } else if (event.key === 'Enter') {
+      onSelect(selectedItem!, 'enter-key');
+    } else if (event.key === 'Escape' && onCancel) {
+      onCancel();
+    }
+  };
+
+  const handleMouseDown: (item: T) => MouseEventHandler<HTMLDivElement> =
+    (item) => (_event) => {
+      onSelect(item, 'mouse-click');
     };
 
-    const handleKeyDown: KeyboardEventHandler<HTMLDivElement> = (event) => {
-      if (['ArrowDown', 'ArrowUp'].includes(event.key)) {
-        event.preventDefault();
-        let newIndex = 0;
-        if (event.key === 'ArrowDown') {
-          newIndex =
-            selectedId === '' || selectedIndexRef.current === items.length - 1
-              ? 0
-              : selectedIndexRef.current + 1;
-        } else if (event.key === 'ArrowUp') {
-          newIndex =
-            selectedId === '' || selectedIndexRef.current === 0
-              ? items.length - 1
-              : selectedIndexRef.current - 1;
-        }
-        selectedIndexRef.current = newIndex;
-        const id = items[newIndex].props['data-id'];
-        rowVirtualizer.scrollToIndex(newIndex);
-        onSelect(id, 'arrow-key');
-      } else if (event.key === 'Enter') {
-        onSelect(selectedId, 'enter-key');
-      } else if (event.key === 'Escape' && onCancel) {
-        onCancel();
-      }
-    };
+  return (
+    <Container
+      className={className}
+      onBlur={onBlur}
+      onFocus={handleFocus}
+      onKeyDown={handleKeyDown}
+      ref={ref}
+      tabIndex={tabIndex}
+    >
+      {header}
+      <ListWrapper className={listClassName} ref={parentRef}>
+        <div
+          style={{
+            height: `${rowVirtualizer.totalSize}px`,
+            width: '100%',
+            position: 'relative',
+          }}
+        >
+          {rowVirtualizer.virtualItems.map((virtualRow) => {
+            const { index } = virtualRow;
+            const listItem = items[index];
+            let selected = false;
+            if (selectedItem === listItem) {
+              selected = true;
+            } else if (index === selectedIndex) {
+              selected = true;
+            }
 
-    const handleMouseDown: (id: string) => MouseEventHandler<HTMLDivElement> =
-      (id: string) => (_event) => {
-        onSelect(id, 'mouse-click');
-      };
+            return renderItem(listItem, {
+              onMouseDown: handleMouseDown(listItem),
+              selected,
+              style: {
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                width: '100%',
+                minHeight: `${virtualRow.size}px`,
+                maxHeight: `${virtualRow.size}px`,
+                transform: `translateY(${virtualRow.start}px)`,
+              },
+            });
+          })}
+        </div>
+      </ListWrapper>
+    </Container>
+  );
+};
 
-    return (
-      <Container
-        className={className}
-        onBlur={onBlur}
-        onFocus={handleFocus}
-        onKeyDown={handleKeyDown}
-        ref={ref}
-        tabIndex={tabIndex}
-      >
-        {header}
-        <ListWrapper className={listClassName} ref={parentRef}>
-          <div
-            style={{
-              height: `${rowVirtualizer.totalSize}px`,
-              width: '100%',
-              position: 'relative',
-            }}
-          >
-            {rowVirtualizer.virtualItems.map((virtualRow) => {
-              const { index } = virtualRow;
-              const listItem = items[index];
-              const id = listItem.props['data-id'];
-              let selected = false;
-              if (selectedId === id) {
-                selected = true;
-                selectedIndexRef.current = index;
-              }
-              return cloneElement(listItem, {
-                key: id,
-                onMouseDown: handleMouseDown(id),
-                selected,
-                style: {
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  minHeight: `${virtualRow.size}px`,
-                  maxHeight: `${virtualRow.size}px`,
-                  transform: `translateY(${virtualRow.start}px)`,
-                },
-              });
-            })}
-          </div>
-        </ListWrapper>
-      </Container>
-    );
-  },
-);
+export const List = forwardRef(ListInner);

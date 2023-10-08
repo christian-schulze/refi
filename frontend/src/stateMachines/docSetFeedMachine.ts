@@ -1,5 +1,6 @@
 import { createMachine, interpret, State } from 'xstate';
 import type { Interpreter, MachineConfig, StateMachine } from 'xstate';
+
 import { DocSetFeedStore } from 'stores/DocSetFeedStore';
 
 // TODO: This was an experiment to implement the DocSet feed downloading process as an xstate state machine.

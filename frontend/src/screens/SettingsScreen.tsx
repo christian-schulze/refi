@@ -6,10 +6,12 @@ import styled from '@emotion/styled';
 import Button from '@mui/material/Button';
 
 import { useStores } from 'stores';
+import { SettingsItem } from 'stores/SettingsStore';
 
 import { SettingsList } from 'components/Settings/SettingsList';
 import { GeneralSettingsPanel } from 'components/Settings/GeneralSettingsPanel';
 import { DocSets } from 'components/Settings/DocSets';
+import { ListProps } from 'components/List';
 
 const Container = styled.div`
   flex-grow: 1;
@@ -37,8 +39,8 @@ export const SettingsScreen = observer(() => {
   const { settingsStore, docSetAliasStore } = useStores();
   const navigate = useNavigate();
 
-  const handleSelect = (id: string) => {
-    settingsStore.setSelectedSectionId(id);
+  const handleSelect: ListProps<SettingsItem>['onSelect'] = (item) => {
+    settingsStore.setSelectedSettingsId(item.id);
   };
 
   const handleClickClose = (_event: MouseEvent<HTMLButtonElement>) => {
@@ -53,14 +55,14 @@ export const SettingsScreen = observer(() => {
       <ResizableWrapper enable={{ right: true }} minWidth={250}>
         <SettingsList
           onSelect={handleSelect}
-          selectedId={settingsStore.selectedSectionId}
+          selectedSettingsId={settingsStore.selectedSettingsId}
         />
       </ResizableWrapper>
       <Content>
-        {settingsStore.selectedSectionId === 'settings-list-item-general' ? (
+        {settingsStore.selectedSettingsId === 'settings-list-item-general' ? (
           <GeneralSettingsPanel />
         ) : null}
-        {settingsStore.selectedSectionId === 'settings-list-item-docsets' ? (
+        {settingsStore.selectedSettingsId === 'settings-list-item-docsets' ? (
           <DocSets />
         ) : null}
         <Footer>

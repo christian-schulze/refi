@@ -1,10 +1,12 @@
-import { useRef } from 'react';
+import { useMemo } from 'react';
 import styled from '@emotion/styled';
 
-import { List, ListProps } from 'components/List';
-import Typography from '@mui/material/Typography';
+import { SettingsItem, SettingsItems } from 'stores/SettingsStore';
 
-const ListWrapper = styled(List)`
+import { Typography } from 'components/Typography';
+import { List, ListProps } from 'components/List';
+
+const StyledList = styled(List)`
   height: 100%;
   background-color: ${({ theme }) => theme.palette.background.default};
   border: 1px solid transparent;
@@ -14,7 +16,7 @@ const ListWrapper = styled(List)`
   :focus {
     border-color: ${({ theme }) => theme.palette.secondary.main};
   }
-`;
+` as typeof List;
 
 const ListItem = styled.div<{ selected?: boolean }>`
   display: flex;
@@ -34,33 +36,31 @@ const ListItem = styled.div<{ selected?: boolean }>`
 `;
 
 export interface SettingsListProps {
-  onSelect: ListProps['onSelect'];
-  selectedId: string;
+  onSelect: ListProps<SettingsItem>['onSelect'];
+  selectedSettingsId: string;
 }
 
-export const SettingsList = ({ onSelect, selectedId }: SettingsListProps) => {
-  const listRef = useRef(null);
+export const SettingsList = ({
+  onSelect,
+  selectedSettingsId,
+}: SettingsListProps) => {
+  const selectedSettingsItem = useMemo(() => {
+    return SettingsItems.find((item) => item.id === selectedSettingsId);
+  }, [selectedSettingsId]);
 
   return (
-    <ListWrapper
-      items={[
-        <ListItem
-          data-id="settings-list-item-docsets"
-          key="settings-list-item-docsets"
-        >
-          <Typography variant="body2">DocSets</Typography>
-        </ListItem>,
-        <ListItem
-          data-id="settings-list-item-general"
-          key="settings-list-item-general"
-        >
-          <Typography variant="body2">General</Typography>
-        </ListItem>,
-      ]}
+    <StyledList
+      items={SettingsItems}
       itemSize={24}
       onSelect={onSelect}
-      ref={listRef}
-      selectedId={selectedId}
+      renderItem={({ id, label }, props) => {
+        return (
+          <ListItem key={id} {...props}>
+            <Typography variant="body">{label}</Typography>
+          </ListItem>
+        );
+      }}
+      selectedItem={selectedSettingsItem}
       tabIndex={0}
     />
   );

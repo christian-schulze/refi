@@ -1,9 +1,10 @@
-import { forwardRef } from 'react';
+import { forwardRef, ForwardedRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import { cx } from '@emotion/css';
 import styled from '@emotion/styled';
 
 import { useStores } from 'stores';
+import { SearchResult } from 'stores/TabStore';
 
 import { Typography } from 'components/Typography';
 import { List, ListProps } from 'components/List';
@@ -18,56 +19,58 @@ const NoResults = styled.div`
 
 export interface DocSetSearchResultsProps {
   className?: string;
-  onBlur: ListProps['onBlur'];
-  onCancel: ListProps['onCancel'];
-  onSelect: ListProps['onSelect'];
+  onBlur: ListProps<SearchResult>['onBlur'];
+  onCancel: ListProps<SearchResult>['onCancel'];
+  onSelect: ListProps<SearchResult>['onSelect'];
 }
 
-export const DocSetSearchResults = observer<
-  DocSetSearchResultsProps,
-  HTMLDivElement
->(
-  forwardRef(({ className, onBlur, onCancel, onSelect }, ref) => {
-    const { tabsStore } = useStores();
+const DocSetSearchResultsInner = (
+  { className, onBlur, onCancel, onSelect }: DocSetSearchResultsProps,
+  ref: ForwardedRef<HTMLDivElement>,
+) => {
+  const { tabsStore } = useStores();
 
-    const handleSelect: ListProps['onSelect'] = (name, selectionType) => {
-      tabsStore.currentTab?.setSelectedSearchResult(name);
-      if (['mouse-click', 'enter-key'].includes(selectionType)) {
-        if (onSelect) {
-          onSelect(name, selectionType);
-        }
-      }
-    };
-
-    if (tabsStore.currentTab?.searchResults.length === 0) {
-      return (
-        <NoResults>
-          <Typography variant='body'>No search results found.</Typography>
-        </NoResults>
-      );
+  const handleSelect: ListProps<SearchResult>['onSelect'] = (
+    selectedSearchResult,
+    selectionType,
+  ) => {
+    tabsStore.currentTab?.setSelectedSearchResult(selectedSearchResult.name);
+    if (['mouse-click', 'enter-key'].includes(selectionType)) {
+      onSelect(selectedSearchResult, selectionType);
     }
+  };
 
+  if (tabsStore.currentTab?.searchResults.length === 0) {
     return (
-      <List
-        autoSelectOnFocus
-        className={cx('search-results-list', className)}
-        items={tabsStore.currentTab?.searchResults
-          .slice(0, 100)
-          .map((result) => {
-            return (
-              <SearchResultItem data-id={result.name} key={result.name}>
-                <Typography variant="body">{result.name}</Typography>
-              </SearchResultItem>
-            );
-          })}
-        itemSize={24}
-        onBlur={onBlur}
-        onCancel={onCancel}
-        onSelect={handleSelect}
-        ref={ref}
-        selectedId={tabsStore.currentTab?.selectedSearchResultName}
-        tabIndex={0}
-      />
+      <NoResults>
+        <Typography variant="body">No search results found.</Typography>
+      </NoResults>
     );
-  }),
+  }
+
+  return (
+    <List<SearchResult>
+      autoSelectOnFocus
+      className={cx('search-results-list', className)}
+      items={tabsStore.currentTab?.searchResults.slice(0, 100)}
+      itemSize={24}
+      onBlur={onBlur}
+      onCancel={onCancel}
+      onSelect={handleSelect}
+      ref={ref}
+      renderItem={(result, props) => {
+        return (
+          <SearchResultItem key={result.name} {...props}>
+            <Typography variant="body">{result.name}</Typography>
+          </SearchResultItem>
+        );
+      }}
+      selectedItem={tabsStore.currentTab?.visibleSearchResult}
+      tabIndex={0}
+    />
+  );
+};
+
+export const DocSetSearchResults = observer(
+  forwardRef(DocSetSearchResultsInner),
 );

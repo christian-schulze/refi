@@ -1,10 +1,11 @@
 import { action, makeObservable, observable, runInAction } from 'mobx';
 
-import { ErrorsStore } from './ErrorsStore';
 import {
   loadDocSetAliases,
   saveDocSetAliases,
 } from 'services/docSetAliasManager';
+
+import { ErrorsStore } from './ErrorsStore';
 
 export interface Aliases {
   [name: string]: string;

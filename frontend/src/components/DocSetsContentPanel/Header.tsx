@@ -6,9 +6,9 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForward from '@mui/icons-material/ArrowForward';
 import CloseIcon from '@mui/icons-material/Close';
 
-import { Typography } from 'components/Typography';
-
 import { useStores } from 'stores';
+
+import { Typography } from 'components/Typography';
 
 const Container = styled.div`
   display: flex;

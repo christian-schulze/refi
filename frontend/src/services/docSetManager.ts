@@ -5,8 +5,8 @@ import {
   GetDownloadedDocSetPaths,
 } from '../../wailsjs/go/docsets/DocSets';
 
-import { DocSetListStore } from '../stores/DocSetListStore';
-import { DocSetFeedStore } from '../stores/DocSetFeedStore';
+import { DocSetListStore } from 'stores/DocSetListStore';
+import { DocSetFeedStore } from 'stores/DocSetFeedStore';
 
 import { doesPathExist, splitPathAndBaseName } from './path';
 import { readPListFile } from './plistParser';

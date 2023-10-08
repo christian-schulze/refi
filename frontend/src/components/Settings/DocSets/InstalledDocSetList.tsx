@@ -9,13 +9,14 @@ import CloseIcon from '@mui/icons-material/Close';
 import UpgradeIcon from '@mui/icons-material/Upgrade';
 
 import { useStores } from 'stores';
+import { DocSetStore } from 'stores/DocSetStore';
 
 import { Typography } from 'components/Typography';
-import { List } from 'components/List';
+import { List, ListProps } from 'components/List';
+import { DotsSpinnerIcon } from 'components/icons/DotsSpinnerIcon';
 import { EditDocSetAliasInput } from './EditDocSetAliasInput';
-import { DotsSpinnerIcon } from '../../icons/DotsSpinnerIcon.tsx';
 
-const DocSetListWrapper = styled(List)`
+const StyledDocSetList = styled(List)`
   flex-grow: 1;
   flex-shrink: 1;
   flex-basis: 0;
@@ -30,7 +31,7 @@ const DocSetListWrapper = styled(List)`
   :focus-within {
     border-color: ${({ theme }) => theme.palette.secondary.main};
   }
-`;
+` as typeof List;
 
 const DocSetListHeader = styled.div`
   display: flex;
@@ -81,10 +82,10 @@ const ActionsSection = styled.div`
 export const InstalledDocSetList = observer(() => {
   const { docSetFeedStore, docSetListStore, docSetManagerStore } = useStores();
 
-  const [selectedDocSetName, setSelectedDocSetName] = useState('');
+  const [selectedDocSet, setSelectedDocSet] = useState<DocSetStore>();
 
-  const handleSelect = (name: string) => {
-    setSelectedDocSetName(name);
+  const handleSelect: ListProps<DocSetStore>['onSelect'] = (docSet) => {
+    setSelectedDocSet(docSet);
   };
 
   const handleClickUpdate =
@@ -102,7 +103,7 @@ export const InstalledDocSetList = observer(() => {
     };
 
   return (
-    <DocSetListWrapper
+    <StyledDocSetList<DocSetStore>
       header={
         <DocSetListHeader>
           <Typography variant="subtitle2">Docset name</Typography>
@@ -110,14 +111,17 @@ export const InstalledDocSetList = observer(() => {
           <ActionsSection />
         </DocSetListHeader>
       }
-      items={Object.values(docSetListStore.docSets).map((docSet) => {
+      items={Object.values(docSetListStore.docSets)}
+      itemSize={24}
+      onSelect={handleSelect}
+      renderItem={(docSet, props) => {
         const showUpateProgress =
           docSet.feedEntryName in docSetManagerStore.docSetDownloadProgress;
         const showUpdateIconButton = docSet.updatable && !showUpateProgress;
         const showDeleteIconButton = !showUpateProgress;
 
         return (
-          <DocSetListItem data-id={docSet.name} key={docSet.name}>
+          <DocSetListItem key={docSet.name} {...props}>
             <Typography variant="body">{docSet.title}</Typography>
             <EditDocSetAliasInput name={docSet.name} />
             <ActionsSection>
@@ -170,10 +174,8 @@ export const InstalledDocSetList = observer(() => {
             </ActionsSection>
           </DocSetListItem>
         );
-      })}
-      itemSize={24}
-      onSelect={handleSelect}
-      selectedId={selectedDocSetName}
+      }}
+      selectedItem={selectedDocSet}
       tabIndex={0}
     />
   );

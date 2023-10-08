@@ -21,11 +21,24 @@ const StyledListItem = styled.div<StyledListItemProps>`
   ${({ selected, theme }) => {
     if (selected) {
       return `
-        p {
-          color: ${theme.palette.text.primary};
-          font-weight: 500;
+        p:first-of-type {
+          color: ${darken(0.6, theme.palette.text.primary)} !important;
+          font-weight: 600 !important;
+        }
+        p:nth-of-type(2) {
+          color: ${darken(0.5, theme.palette.text.primary)} !important;
+          font-weight: 600 !important;
         }
         background-color: ${theme.palette.secondary.main};
+        
+        :hover {
+          p:first-of-type {
+            color: ${darken(0.2, theme.palette.text.primary)} !important;
+          }
+          p:nth-of-type(2) {
+            color: ${darken(0.3, theme.palette.text.primary)} !important;
+          }
+        }
       `;
     }
   }}
@@ -33,7 +46,6 @@ const StyledListItem = styled.div<StyledListItemProps>`
 
 export interface SearchResultItemProps {
   children: ReactNode;
-  'data-id': string;
   selected?: boolean;
 }
 

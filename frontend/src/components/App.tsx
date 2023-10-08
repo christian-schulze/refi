@@ -6,10 +6,10 @@ import {
 } from '@mui/material/styles';
 
 import { StoresProvider, stores } from 'stores';
+import { baseDarkTheme } from 'themes/darkTheme';
 
 import { Routes } from './Routes';
-import { baseDarkTheme } from 'themes/darkTheme';
-import { GlobalStyles } from './GlobalStyles.tsx';
+import { GlobalStyles } from './GlobalStyles';
 
 const muiTheme = createTheme(baseDarkTheme);
 
