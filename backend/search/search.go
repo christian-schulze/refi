@@ -12,6 +12,7 @@ import (
 	"github.com/blevesearch/bleve/v2/mapping"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
+	"strings"
 )
 
 type Search struct {
@@ -125,19 +126,17 @@ func (s *Search) SearchDocSet(indexPath string, term string) SearchDocSetResult 
 	}
 	defer bleveIndex.Close()
 
-	//splitTerms := strings.Split(term, " ")
-	//var matchQueries []*query.MatchQuery
-	//for _, splitTerm := range splitTerms {
-	//	matchQuery := bleve.NewMatchQuery(splitTerm)
-	//	matchQueries = append(matchQueries, matchQuery)
-	//}
-	//var queries = make([]query.Query, len(matchQueries))
-	//for i, matchQuery := range matchQueries {
-	//	queries[i] = query.Query(matchQuery)
-	//}
-
 	matchQuery := bleve.NewMatchQuery(term)
-	searchRequest := bleve.NewSearchRequest(matchQuery)
+
+	splitTerms := strings.Split(term, " ")
+	updatedTerm := strings.Join(splitTerms, ".*")
+	updatedTerm = fmt.Sprintf(".{0}%s.*", updatedTerm)
+	reqexpQuery := bleve.NewRegexpQuery(updatedTerm)
+
+	disjunctionQuery := bleve.NewDisjunctionQuery(matchQuery, reqexpQuery)
+
+	searchRequest := bleve.NewSearchRequest(disjunctionQuery)
+
 	searchRequest.Fields = []string{"id", "name", "type", "path"}
 	searchRequest.IncludeLocations = true
 	searchResult, err := bleveIndex.Search(searchRequest)
@@ -160,13 +159,14 @@ func (s *Search) SearchDocSet(indexPath string, term string) SearchDocSetResult 
 			results = append(results, docSetRow)
 
 			for _, outerValue := range hit.Locations {
-				for _, innerValue := range outerValue {
+				for key, innerValue := range outerValue {
+					runtime.LogPrintf(s.ctx, "Term: %+v", key)
 					for _, location := range innerValue {
-						runtime.LogPrintf(s.ctx, "SearchDocSet: Result - %+v", location)
+						runtime.LogPrintf(s.ctx, "  %+v", location)
 					}
 				}
 			}
-			message := fmt.Sprintf("SearchDocSet: Result - Score: %+v, Locations: %+v", hit.Score, hit.Locations["name"]["map"])
+			message := fmt.Sprintf("Score: %+v", hit.Score)
 			runtime.LogPrintf(s.ctx, message)
 		}
 		//message := fmt.Sprintf("SearchDocSet: Result - %v", results)
@@ -189,9 +189,9 @@ func newBleveIndexMapping(s *Search) *mapping.IndexMappingImpl {
 	}
 
 	err = bleveIndexMapping.AddCustomAnalyzer("custom", map[string]interface{}{
-		"type": custom.Name,
+		"type":         custom.Name,
 		"char_filters": []string{
-			"regexp",
+			//"regexp",
 		},
 		"tokenizer": whitespace.Name,
 		"token_filters": []string{
