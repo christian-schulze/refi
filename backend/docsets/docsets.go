@@ -127,6 +127,7 @@ func (a *DocSets) GetDownloadedDocSetPaths(docSetsPath string) GetDownloadedDocS
 		return GetDownloadedDocSetPaths{Error: message}
 	}
 
+	docSetPaths = []string{}
 	for _, dirEntry := range dirEntries {
 		if strings.HasSuffix(dirEntry.Name(), ".docset") {
 			docSetPaths = append(docSetPaths, path.Join(docSetsPath, dirEntry.Name()))
