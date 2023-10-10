@@ -1,11 +1,11 @@
-import { useMemo } from 'react';
 import styled from '@emotion/styled';
 import { darken } from 'polished';
+import { useMemo } from 'react';
 
 import { SettingsItem, SettingsItems } from 'stores/SettingsStore';
 
-import { Typography } from 'components/Typography';
 import { List, ListProps } from 'components/List';
+import { Typography } from 'components/Typography';
 
 const StyledList = styled(List)`
   height: 100%;

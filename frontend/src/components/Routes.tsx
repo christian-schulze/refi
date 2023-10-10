@@ -1,8 +1,8 @@
 import { observer } from 'mobx-react-lite';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
-import { Root } from 'screens/Root';
 import { MainScreen } from 'screens/MainScreen';
+import { Root } from 'screens/Root';
 import { SettingsScreen } from 'screens/SettingsScreen';
 
 const router = createBrowserRouter([
@@ -11,8 +11,8 @@ const router = createBrowserRouter([
     element: <Root />,
     children: [
       { path: '/', element: <MainScreen /> },
-      { path: '/settings', element: <SettingsScreen /> }
-    ]
+      { path: '/settings', element: <SettingsScreen /> },
+    ],
   },
 ]);
 

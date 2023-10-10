@@ -1,14 +1,14 @@
+import styled from '@emotion/styled';
 import { observer } from 'mobx-react-lite';
 import { darken } from 'polished';
-import styled from '@emotion/styled';
 
 import { useStores } from 'stores';
 import { DocSetStore } from 'stores/DocSetStore';
 import { useTheme } from 'themes/utils';
 
-import { Typography } from 'components/Typography';
 import { List, ListProps } from 'components/List';
 import { Spinner } from 'components/Spinner';
+import { Typography } from 'components/Typography';
 
 const Container = styled.div`
   position: relative;

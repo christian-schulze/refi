@@ -1,12 +1,12 @@
 import { action, makeObservable, observable } from 'mobx';
 
-import { TabStore } from './TabStore';
-import { ErrorsStore } from './ErrorsStore';
 import { DocSetStore } from './DocSetStore';
+import { ErrorsStore } from './ErrorsStore';
+import { TabStore } from './TabStore';
 
 export class TabsStore {
   errorsStore: ErrorsStore;
-  
+
   tabs: Array<TabStore> = [];
   currentTab: TabStore | null = null;
 
@@ -31,7 +31,9 @@ export class TabsStore {
   }
 
   updateTab(name: string, docSet: DocSetStore) {
-    const index = this.tabs.findIndex((tabStore) => tabStore.docSet?.name === name);
+    const index = this.tabs.findIndex(
+      (tabStore) => tabStore.docSet?.name === name,
+    );
     if (index > -1) {
       this.tabs[index].setDocSet(docSet);
     }
@@ -45,7 +47,9 @@ export class TabsStore {
   }
 
   closeTab(name: string) {
-    const index = this.tabs.findIndex((tabStore) => tabStore.docSet?.name === name);
+    const index = this.tabs.findIndex(
+      (tabStore) => tabStore.docSet?.name === name,
+    );
     if (index > -1) {
       if (this.currentTab?.docSet?.name === name) {
         this.currentTab.clearSearchResults();
@@ -73,7 +77,9 @@ export class TabsStore {
   }
 
   selectTab(name: string) {
-    const currentTab = this.tabs.find((tabStore) => tabStore.docSet?.name === name);
+    const currentTab = this.tabs.find(
+      (tabStore) => tabStore.docSet?.name === name,
+    );
     if (currentTab) {
       this.currentTab = currentTab;
     }

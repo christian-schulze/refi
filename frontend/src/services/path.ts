@@ -1,9 +1,9 @@
+import { DoesPathExist } from '../../wailsjs/go/fs/FS';
 import {
   GetAppName,
   GetUserConfigDir,
   GetUserDataDir,
 } from '../../wailsjs/go/main/App';
-import { DoesPathExist } from '../../wailsjs/go/fs/FS';
 
 import { createDir } from './fs';
 

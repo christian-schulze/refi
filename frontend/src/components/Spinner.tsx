@@ -1,5 +1,5 @@
-import { CSSProperties } from 'react';
 import styled from '@emotion/styled';
+import { CSSProperties } from 'react';
 
 interface SpinnerWrapperProps {
   length: number;
@@ -120,7 +120,13 @@ export interface SpinnerProps {
   width?: number;
 }
 
-export const Spinner = ({ className, length = 6, size = 26, style, width = 1 }: SpinnerProps) => {
+export const Spinner = ({
+  className,
+  length = 6,
+  size = 26,
+  style,
+  width = 1,
+}: SpinnerProps) => {
   return (
     <SpinnerWrapper
       className={className}

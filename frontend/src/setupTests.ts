@@ -1,5 +1,5 @@
-import createFetchMock from 'vitest-fetch-mock';
 import { vi as vitest } from 'vitest';
+import createFetchMock from 'vitest-fetch-mock';
 
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
 // allows you to do things like:

@@ -1,16 +1,16 @@
-import { EventsOn } from '../../wailsjs/runtime';
 import {
   DecompressDocSetArchive,
   DownloadFile,
   GetDownloadedDocSetPaths,
 } from '../../wailsjs/go/docsets/DocSets';
+import { EventsOn } from '../../wailsjs/runtime';
 
-import { DocSetListStore } from 'stores/DocSetListStore';
 import { DocSetFeedStore } from 'stores/DocSetFeedStore';
+import { DocSetListStore } from 'stores/DocSetListStore';
 
+import { readTextFile, removeDir } from './fs';
 import { doesPathExist, splitPathAndBaseName } from './path';
 import { readPListFile } from './plistParser';
-import { readTextFile, removeDir } from './fs';
 
 export interface DownloadEventPayload {
   id: string;

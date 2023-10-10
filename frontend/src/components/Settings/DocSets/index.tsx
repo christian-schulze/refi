@@ -1,11 +1,11 @@
-import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
+import { observer } from 'mobx-react-lite';
 
 import { useStores } from 'stores';
 
 import { Typography } from 'components/Typography';
-import { InstalledDocSetList } from './InstalledDocSetList';
 import { AvailableDocSetList } from './AvailableDocSetList';
+import { InstalledDocSetList } from './InstalledDocSetList';
 
 const MONTHS = [
   'Jan',

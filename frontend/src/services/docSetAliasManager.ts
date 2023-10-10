@@ -1,7 +1,7 @@
 import { Aliases } from 'stores/DocSetAliasStore';
 
-import { doesPathExist, getDocSetAliasConfigPath } from './path';
 import { readTextFile, writeFile } from './fs';
+import { doesPathExist, getDocSetAliasConfigPath } from './path';
 
 export const loadDocSetAliases = async () => {
   const docSetAliasConfigPath = await getDocSetAliasConfigPath();

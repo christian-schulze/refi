@@ -1,0 +1,7 @@
+# Ignore artifacts:
+dist
+coverage
+wailsjs
+
+# Ignore all HTML files:
+**/*.html

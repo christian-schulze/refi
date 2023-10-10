@@ -5,15 +5,15 @@ import {
   getLastDownloadedTimestamp,
   readDocSetFeedArchive,
 } from 'services/docSetFeedManager';
+import type {
+  DocSetFeedEvent,
+  DocSetFeedInterpretter,
+  DocSetFeedState,
+  DocSetFeedStateMachine,
+} from 'stateMachines/docSetFeedMachine';
 import {
   createStateMachine,
   interpretStateMachine,
-} from 'stateMachines/docSetFeedMachine';
-import type {
-  DocSetFeedState,
-  DocSetFeedEvent,
-  DocSetFeedStateMachine,
-  DocSetFeedInterpretter,
 } from 'stateMachines/docSetFeedMachine';
 
 import { ErrorsStore } from './ErrorsStore';
@@ -59,7 +59,7 @@ export class DocSetFeedStore {
       (state, _event) => {
         runInAction(() => {
           console.log('docSetFeedMachine', state.value);
-          this.state = state.value as DocSetFeedState
+          this.state = state.value as DocSetFeedState;
         });
       },
     );

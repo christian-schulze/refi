@@ -5,11 +5,11 @@ import {
   ThemeProvider as MuiThemeProvider,
 } from '@mui/material/styles';
 
-import { StoresProvider, stores } from 'stores';
+import { stores, StoresProvider } from 'stores';
 import { baseDarkTheme } from 'themes/darkTheme';
 
-import { Routes } from './Routes';
 import { GlobalStyles } from './GlobalStyles';
+import { Routes } from './Routes';
 
 const muiTheme = createTheme(baseDarkTheme);
 

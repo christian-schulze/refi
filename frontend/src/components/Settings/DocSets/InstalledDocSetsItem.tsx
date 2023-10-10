@@ -1,20 +1,20 @@
-import { MouseEvent } from 'react';
-import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
-import { darken, lighten } from 'polished';
-import Chip from '@mui/material/Chip';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import UpgradeIcon from '@mui/icons-material/Upgrade';
 import SyncIcon from '@mui/icons-material/Sync';
+import UpgradeIcon from '@mui/icons-material/Upgrade';
+import Chip from '@mui/material/Chip';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import { observer } from 'mobx-react-lite';
+import { darken, lighten } from 'polished';
+import { MouseEvent } from 'react';
 
 import { useStores } from 'stores';
 import { DocSetStore } from 'stores/DocSetStore';
 
+import { RenderItemProps } from 'components/List';
 import { Typography } from 'components/Typography';
 import { DotsSpinnerIcon } from 'components/icons/DotsSpinnerIcon';
-import { RenderItemProps } from 'components/List';
 
 import { EditDocSetAliasInput } from './EditDocSetAliasInput';
 

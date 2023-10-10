@@ -1,19 +1,19 @@
+import styled from '@emotion/styled';
 import {
   CSSProperties,
   FocusEventHandler,
-  forwardRef,
   ForwardedRef,
   KeyboardEventHandler,
   MouseEventHandler,
   ReactElement,
   ReactNode,
+  forwardRef,
   useCallback,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import { useVirtual } from 'react-virtual';
-import styled from '@emotion/styled';
 
 // The Typescript types for `forwardRef` do not support generic prop types.
 // We can work around this by augmenting the `forwardRef` type.

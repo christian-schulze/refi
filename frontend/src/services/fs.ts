@@ -21,7 +21,7 @@ export const readDir = async (path: string) => {
     throw new Error(error);
   }
   return dirEntries;
-}
+};
 
 export const readTextFile = async (path: string) => {
   const { data, error } = await ReadTextFile(path);

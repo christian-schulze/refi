@@ -1,5 +1,5 @@
-import { Resizable } from 're-resizable';
 import styled from '@emotion/styled';
+import { Resizable } from 're-resizable';
 
 import { DocSetList } from 'components/DocSetList';
 import { DocSetsContentPanel } from 'components/DocSetsContentPanel';

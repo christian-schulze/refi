@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import styled from '@emotion/styled';
 import { observer } from 'mobx-react-lite';
 import { lighten } from 'polished';
-import styled from '@emotion/styled';
+import { useState } from 'react';
 
 import { useStores } from 'stores';
 import { DocSetStore } from 'stores/DocSetStore';
 
-import { Typography } from 'components/Typography';
 import { List, ListProps } from 'components/List';
+import { Typography } from 'components/Typography';
 import { InstalledDocSetsItem } from './InstalledDocSetsItem';
 
 const StyledDocSetList = styled(List)`
@@ -18,12 +18,12 @@ const StyledDocSetList = styled(List)`
   margin-top: 4px;
   margin-bottom: 8px;
   border-radius: 4px;
-  border: 1px solid ${({theme}) => theme.palette.background.paper};
-  background-color: ${({theme}) => theme.palette.background.paper};
+  border: 1px solid ${({ theme }) => theme.palette.background.paper};
+  background-color: ${({ theme }) => theme.palette.background.paper};
   overflow-y: auto;
 
   :focus-within {
-    border-color: ${({theme}) => theme.palette.secondary.main};
+    border-color: ${({ theme }) => theme.palette.secondary.main};
   }
 ` as typeof List;
 
@@ -51,7 +51,8 @@ const ActionsColumnHeader = styled.div`
   display: flex;
   justify-content: flex-end;
   min-width: 100px;
-  border-left: 1px dotted ${({theme}) => lighten(0.05, theme.palette.background.default)};
+  border-left: 1px dotted
+    ${({ theme }) => lighten(0.05, theme.palette.background.default)};
 `;
 
 export const InstalledDocSetList = observer(() => {

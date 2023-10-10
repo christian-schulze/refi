@@ -1,10 +1,10 @@
-import { MouseEvent, MouseEventHandler } from 'react';
-import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
-import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForward from '@mui/icons-material/ArrowForward';
 import CloseIcon from '@mui/icons-material/Close';
+import IconButton from '@mui/material/IconButton';
+import { observer } from 'mobx-react-lite';
+import { MouseEvent, MouseEventHandler } from 'react';
 
 import { useStores } from 'stores';
 
@@ -33,7 +33,7 @@ const Tab = styled.div<{ selected: boolean }>`
   padding: 0 6px 0 8px;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
-  
+
   :focus {
     outline: 1px solid ${({ theme }) => theme.palette.secondary.main};
   }
@@ -73,40 +73,47 @@ export interface HeaderProps {
   onClickForward: MouseEventHandler<HTMLButtonElement>;
 }
 
-export const Header = observer(({ onClickBack, onClickForward }: HeaderProps) => {
-  const { tabsStore } = useStores();
+export const Header = observer(
+  ({ onClickBack, onClickForward }: HeaderProps) => {
+    const { tabsStore } = useStores();
 
-  const handleClickClose = (id: string) => (_event: MouseEvent<SVGSVGElement>) => {
-    tabsStore.closeTabById(id);
-  };
+    const handleClickClose =
+      (id: string) => (_event: MouseEvent<SVGSVGElement>) => {
+        tabsStore.closeTabById(id);
+      };
 
-  return (
-    <Container>
-      <IconButton onClick={onClickBack}>
-        <ArrowBackIcon color="secondary" />
-      </IconButton>
-      <IconButton onClick={onClickForward}>
-        <ArrowForward color="secondary" />
-      </IconButton>
-      {tabsStore.currentTab ? (
-        <Tabs>
-          {tabsStore.tabs.map((tab) => {
-            return (
-              <Tab key={tab.id} selected={tabsStore.currentTab?.id === tab.id} tabIndex={0}>
-                <Icon
-                  src={tab.docSet?.iconPath || ''}
-                  alt={`${tab.docSet?.title} docset icon`}
-                />
-                <Typography variant="body">{tab.docSet?.title}</Typography>
-                <CloseIcon
-                  onClick={handleClickClose(tab.id)}
-                  sx={{ color: 'background.default', marginLeft: '6px' }}
-                />
-              </Tab>
-            );
-          })}
-        </Tabs>
-      ) : null}
-    </Container>
-  );
-});
+    return (
+      <Container>
+        <IconButton onClick={onClickBack}>
+          <ArrowBackIcon color="secondary" />
+        </IconButton>
+        <IconButton onClick={onClickForward}>
+          <ArrowForward color="secondary" />
+        </IconButton>
+        {tabsStore.currentTab ? (
+          <Tabs>
+            {tabsStore.tabs.map((tab) => {
+              return (
+                <Tab
+                  key={tab.id}
+                  selected={tabsStore.currentTab?.id === tab.id}
+                  tabIndex={0}
+                >
+                  <Icon
+                    src={tab.docSet?.iconPath || ''}
+                    alt={`${tab.docSet?.title} docset icon`}
+                  />
+                  <Typography variant="body">{tab.docSet?.title}</Typography>
+                  <CloseIcon
+                    onClick={handleClickClose(tab.id)}
+                    sx={{ color: 'background.default', marginLeft: '6px' }}
+                  />
+                </Tab>
+              );
+            })}
+          </Tabs>
+        ) : null}
+      </Container>
+    );
+  },
+);

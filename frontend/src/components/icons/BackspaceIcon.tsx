@@ -1,9 +1,9 @@
-import { SVGProps } from 'react';
 import styled from '@emotion/styled';
+import { SVGProps } from 'react';
 
 const SvgWrapper = styled.svg`
-   min-width: 24px;
- `;
+  min-width: 24px;
+`;
 
 export interface BackspaceIconProps extends SVGProps<SVGSVGElement> {}
 

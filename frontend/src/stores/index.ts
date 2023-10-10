@@ -1,9 +1,9 @@
 import { Context, createContext, useContext } from 'react';
 
 import { DocSetAliasStore } from './DocSetAliasStore';
-import { DocSetManagerStore } from './DocSetManagerStore';
 import { DocSetFeedStore } from './DocSetFeedStore';
 import { DocSetListStore } from './DocSetListStore';
+import { DocSetManagerStore } from './DocSetManagerStore';
 import { ErrorsStore } from './ErrorsStore';
 import { SettingsStore } from './SettingsStore';
 import { TabsStore } from './TabsStore';

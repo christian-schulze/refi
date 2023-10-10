@@ -1,4 +1,7 @@
-import { CreateDocSetIndex, SearchDocSet } from '../../wailsjs/go/search/Search.js';
+import {
+  CreateDocSetIndex,
+  SearchDocSet,
+} from '../../wailsjs/go/search/Search.js';
 
 export const createDocSetIndex = async (indexPath: string, dbPath: string) => {
   const error = await CreateDocSetIndex(indexPath, dbPath);

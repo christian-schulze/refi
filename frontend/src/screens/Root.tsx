@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
-import { observer } from 'mobx-react-lite';
-import { reaction } from 'mobx';
-import { Outlet } from 'react-router';
 import styled from '@emotion/styled';
-import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
+import { reaction } from 'mobx';
+import { observer } from 'mobx-react-lite';
+import { useEffect } from 'react';
+import { Outlet } from 'react-router';
 
 import { checkForUpdatableDocSets } from 'services/docSetManager';
 import { useStores } from 'stores';

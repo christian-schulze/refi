@@ -1,6 +1,6 @@
-import { CSSProperties, ReactNode } from 'react';
-import styled from '@emotion/styled';
 import { cx } from '@emotion/css';
+import styled from '@emotion/styled';
+import { CSSProperties, ReactNode } from 'react';
 
 export type Variants =
   | 'heading1'

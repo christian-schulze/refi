@@ -1,19 +1,19 @@
-import { MouseEvent } from 'react';
-import { observer } from 'mobx-react-lite';
-import { useNavigate } from 'react-router';
-import { Resizable } from 're-resizable';
 import styled from '@emotion/styled';
 import Button from '@mui/material/Button';
+import { observer } from 'mobx-react-lite';
+import { Resizable } from 're-resizable';
+import { MouseEvent } from 'react';
+import { useNavigate } from 'react-router';
 
 import { BrowserOpenURL } from '../../wailsjs/runtime';
 
 import { useStores } from 'stores';
 import { SettingsItem } from 'stores/SettingsStore';
 
-import { SettingsList } from 'components/Settings/SettingsList';
-import { GeneralSettingsPanel } from 'components/Settings/GeneralSettingsPanel';
-import { DocSets } from 'components/Settings/DocSets';
 import { ListProps } from 'components/List';
+import { DocSets } from 'components/Settings/DocSets';
+import { GeneralSettingsPanel } from 'components/Settings/GeneralSettingsPanel';
+import { SettingsList } from 'components/Settings/SettingsList';
 import { Typography } from '../components/Typography.tsx';
 
 const Container = styled.div`

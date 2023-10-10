@@ -1,3 +1,7 @@
+import styled from '@emotion/styled';
+import { autorun, reaction } from 'mobx';
+import { observer } from 'mobx-react-lite';
+import { darken } from 'polished';
 import {
   ChangeEventHandler,
   FocusEventHandler,
@@ -7,22 +11,18 @@ import {
   useRef,
   useState,
 } from 'react';
-import { autorun, reaction } from 'mobx';
-import { observer } from 'mobx-react-lite';
-import styled from '@emotion/styled';
-import { darken } from 'polished';
 
 import { searchDocSet } from 'services/search';
 
 import { useStores } from 'stores';
-import { SearchResult } from 'stores/TabStore';
 import { DocSetStore } from 'stores/DocSetStore';
+import { SearchResult } from 'stores/TabStore';
 
 import { DocSetSearchResults } from 'components/DocSetSearchResults';
 import { DocSetsSearchResults } from 'components/DocSetsSearchResults';
 import { Input } from 'components/Input';
-import { BackspaceIcon } from 'components/icons/BackspaceIcon';
 import { Spinner } from 'components/Spinner';
+import { BackspaceIcon } from 'components/icons/BackspaceIcon';
 
 const Container = styled.div`
   position: relative;

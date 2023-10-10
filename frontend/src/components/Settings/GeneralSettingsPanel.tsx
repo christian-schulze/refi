@@ -8,7 +8,5 @@ const Container = styled.div`
 `;
 
 export const GeneralSettingsPanel = () => {
-  return (
-    <Container>general settings panel</Container>
-  );
+  return <Container>general settings panel</Container>;
 };

@@ -1,14 +1,14 @@
-import { forwardRef, ForwardedRef } from 'react';
-import { observer } from 'mobx-react-lite';
 import { cx } from '@emotion/css';
 import styled from '@emotion/styled';
+import { observer } from 'mobx-react-lite';
+import { ForwardedRef, forwardRef } from 'react';
 
 import { useStores } from 'stores';
 import { SearchResult } from 'stores/TabStore';
 
-import { Typography } from 'components/Typography';
 import { List, ListProps } from 'components/List';
 import { SearchResultItem } from 'components/SearchResultItem';
+import { Typography } from 'components/Typography';
 
 const StyledToken = styled(Typography)`
   flex-grow: 1;

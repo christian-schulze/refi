@@ -1,4 +1,4 @@
-import { cx, css } from '@emotion/css';
+import { css, cx } from '@emotion/css';
 
 const iconClassName = css`
   stroke: currentColor;

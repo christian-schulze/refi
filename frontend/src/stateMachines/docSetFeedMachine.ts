@@ -1,5 +1,5 @@
-import { createMachine, interpret, State } from 'xstate';
 import type { Interpreter, MachineConfig, StateMachine } from 'xstate';
+import { State, createMachine, interpret } from 'xstate';
 
 import { DocSetFeedStore } from 'stores/DocSetFeedStore';
 

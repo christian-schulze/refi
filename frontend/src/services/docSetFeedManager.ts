@@ -3,12 +3,12 @@ import {
   ReadFeedArchive,
 } from '../../wailsjs/go/docsets/DocSets';
 
+import { readTextFile, writeFile } from './fs';
 import {
   doesPathExist,
   getDocSetFeedPath,
   getDocSetFeedTimestampPath,
 } from './path';
-import { readTextFile, writeFile } from './fs';
 
 export interface DocSetFeed {
   [key: string]: string;

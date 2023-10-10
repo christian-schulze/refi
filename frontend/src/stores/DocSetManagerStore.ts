@@ -1,7 +1,5 @@
 import { action, makeObservable, observable, runInAction } from 'mobx';
 
-import { doesPathExist } from 'services/path';
-import { removeDir, removeFile, rename, writeFile } from 'services/fs';
 import { importSearchIndex, openDB, tableDoesNotExist } from 'services/db';
 import {
   decompressDocSetArchive,
@@ -9,12 +7,14 @@ import {
   downloadDocSetIcons,
   loadDocSet,
 } from 'services/docSetManager';
+import { removeDir, removeFile, rename, writeFile } from 'services/fs';
+import { doesPathExist } from 'services/path';
 import { createDocSetIndex } from 'services/search';
 
+import { DocSetFeedStore } from './DocSetFeedStore';
+import { DocSetStore } from './DocSetStore';
 import { ErrorsStore } from './ErrorsStore';
 import { SettingsStore } from './SettingsStore';
-import { DocSetStore } from './DocSetStore';
-import { DocSetFeedStore } from './DocSetFeedStore';
 
 export class DocSetManagerStore {
   errorsStore: ErrorsStore;

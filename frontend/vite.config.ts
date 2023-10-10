@@ -1,17 +1,15 @@
 /// <reference types="vitest" />
+import reactPlugin from '@vitejs/plugin-react';
 import path from 'node:path';
 import { defineConfig } from 'vite';
-import reactPlugin from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
   plugins: [
     reactPlugin({
-      jsxImportSource: "@emotion/react",
+      jsxImportSource: '@emotion/react',
       babel: {
-        plugins: [
-          "@emotion/babel-plugin"
-        ],
+        plugins: ['@emotion/babel-plugin'],
       },
     }),
   ],

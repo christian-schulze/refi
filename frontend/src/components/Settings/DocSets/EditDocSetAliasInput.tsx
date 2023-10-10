@@ -1,3 +1,6 @@
+import styled from '@emotion/styled';
+import { observer } from 'mobx-react-lite';
+import { darken, lighten } from 'polished';
 import {
   ChangeEvent,
   FocusEvent,
@@ -7,15 +10,12 @@ import {
   useRef,
   useState,
 } from 'react';
-import { observer } from 'mobx-react-lite';
-import { darken, lighten } from 'polished';
-import styled from '@emotion/styled';
 
 import { useStores } from 'stores';
 
 import { Input } from 'components/Input';
 
-const DocSetAlias = styled.div<{ alias: string, selected: boolean }>`
+const DocSetAlias = styled.div<{ alias: string; selected: boolean }>`
   padding-left: 4px;
   padding-right: 4px;
   border-radius: 2px;
@@ -40,7 +40,7 @@ const DocSetAlias = styled.div<{ alias: string, selected: boolean }>`
       `;
     }
   }}
-  
+
   :hover {
     background: ${({ theme }) => darken(0.1, theme.palette.primary.main)};
   }
@@ -129,7 +129,11 @@ export const EditDocSetAliasInput = observer(
             value={editedAlias}
           />
         ) : (
-          <DocSetAlias alias={alias} onClick={handleClickEditAlias} selected={selected}>
+          <DocSetAlias
+            alias={alias}
+            onClick={handleClickEditAlias}
+            selected={selected}
+          >
             {alias || name.toLowerCase()}
           </DocSetAlias>
         )}

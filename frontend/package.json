@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "prepare": "cd .. && husky install frontend/.husky",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
@@ -40,11 +41,17 @@
     "@types/uuid": "9.0.4",
     "@vitejs/plugin-react": "4.1.0",
     "@vitest/ui": "0.34.6",
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1",
     "prettier": "3.0.3",
+    "prettier-plugin-organize-imports": "3.2.3",
     "typescript": "5.2.2",
     "vite": "4.4.10",
     "vite-plugin-babel-macros": "1.0.6",
     "vitest": "0.34.6",
     "vitest-fetch-mock": "0.2.2"
+  },
+  "lint-staged": {
+    "**/*": "prettier --write --ignore-unknown"
   }
 }
