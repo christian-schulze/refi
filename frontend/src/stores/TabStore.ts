@@ -4,6 +4,7 @@ import { v1 as uuid } from 'uuid';
 import { DocSetStore } from './DocSetStore';
 
 export interface SearchResult {
+  id: number;
   name: string;
   type: string;
   path: string;
@@ -16,7 +17,7 @@ export class TabStore {
   query: string = '';
   searchInProgress: boolean = false;
   searchResults: Array<SearchResult> = [];
-  selectedSearchResultName: string = '';
+  selectedSearchResult: SearchResult | undefined;
   visibleSearchResult: SearchResult | undefined;
   currentUrl: string = '';
 
@@ -27,7 +28,7 @@ export class TabStore {
       query: observable,
       searchInProgress: observable,
       searchResults: observable,
-      selectedSearchResultName: observable,
+      selectedSearchResult: observable,
       visibleSearchResult: observable,
       currentUrl: observable,
       setDocSet: action,
@@ -78,23 +79,23 @@ export class TabStore {
     this.query = '';
     if (this.searchResults.length > 0) {
       this.searchResults = [];
-      this.selectedSearchResultName = '';
+      this.selectedSearchResult = undefined;
     }
   }
 
-  setSelectedSearchResult(name: string) {
-    this.selectedSearchResultName = name;
+  setSelectedSearchResult(searchResult: SearchResult) {
+    this.selectedSearchResult = searchResult;
   }
 
-  setVisibleSearchResult(name: string | null) {
+  setVisibleSearchResult(searchResult: SearchResult | undefined) {
     this.visibleSearchResult = this.searchResults.find(
-      (result) => result.name === name,
+      (result) => result.id === searchResult?.id,
     );
     this.currentUrl = this.searchResultPath;
   }
 
   showSelectedSearchResult() {
-    this.setVisibleSearchResult(this.selectedSearchResultName);
+    this.setVisibleSearchResult(this.selectedSearchResult);
   }
 
   get searchResultPath() {

@@ -144,7 +144,10 @@ export const loadDocSet = async (docSetPath: string): Promise<DocSet> => {
 };
 
 export const loadDocSets = async (path: string): Promise<Array<DocSet>> => {
-  const docSetPaths = await GetDownloadedDocSetPaths(path);
+  const { docSetPaths, error } = await GetDownloadedDocSetPaths(path);
+  if (error) {
+    throw new Error(error);
+  }
 
   const docSets: Array<DocSet> = [];
   for (const docSetPath of docSetPaths) {

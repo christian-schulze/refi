@@ -12,7 +12,8 @@ import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
 import { darken } from 'polished';
 
-import { openDB, searchDocSet } from 'services/db';
+import { searchDocSet } from 'services/search';
+
 import { useStores } from 'stores';
 import { SearchResult } from 'stores/TabStore';
 import { DocSetStore } from 'stores/DocSetStore';
@@ -61,7 +62,7 @@ const SearchResultsContainer = styled.div`
 `;
 
 export const SearchField = observer(() => {
-  const dbRef = useRef<string | null>(null);
+  const indexRef = useRef<string | null>(null);
   const { tabsStore, docSetListStore, docSetAliasStore, errorsStore } =
     useStores();
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -72,15 +73,14 @@ export const SearchField = observer(() => {
 
   useEffect(() => {
     return reaction(
-      () => tabsStore.currentTab?.docSet?.dbPath,
-      async (dbPath) => {
-        if (dbPath) {
+      () => tabsStore.currentTab?.docSet?.indexPath,
+      async (indexPath) => {
+        if (indexPath) {
           try {
-            await openDB(dbPath);
-            dbRef.current = dbPath;
+            indexRef.current = indexPath;
           } catch (error) {
             errorsStore.addError(error as Error);
-            dbRef.current = null;
+            indexRef.current = null;
           }
         }
       },
@@ -139,7 +139,7 @@ export const SearchField = observer(() => {
       async () => {
         setSearchResultsOpen(true);
         if (
-          dbRef.current &&
+          indexRef.current &&
           tabsStore.currentTab &&
           !tabsStore.currentTab.docSetDetached
         ) {
@@ -147,10 +147,7 @@ export const SearchField = observer(() => {
           tabsStore.currentTab.setSearchInProgress(true);
           let results: Awaited<ReturnType<typeof searchDocSet>> = [];
           try {
-            results = await searchDocSet(
-              dbRef.current,
-              `%${event.target.value}%`,
-            );
+            results = await searchDocSet(indexRef.current, event.target.value);
           } catch (error) {
             console.error(
               'handleChangeSearchText => Error querying database',
@@ -160,8 +157,7 @@ export const SearchField = observer(() => {
           } finally {
             tabsStore.currentTab.setSearchInProgress(false);
           }
-          console.log('**************** setSearchResults', results);
-          tabsStore.currentTab.setSearchResults(results);
+          tabsStore.currentTab.setSearchResults(results || []);
         } else {
           docSetListStore.setQuery(event.target.value);
           const results = Object.values(docSetListStore.docSets).filter(
@@ -231,7 +227,7 @@ export const SearchField = observer(() => {
         setSearchResultsOpen(true);
       }
     } else if (event.key === 'Enter') {
-      if (searchResultsOpen && tabsStore.currentTab?.selectedSearchResultName) {
+      if (searchResultsOpen && tabsStore.currentTab?.selectedSearchResult) {
         tabsStore.currentTab.showSelectedSearchResult();
         setSearchResultsOpen(false);
       } else if (
@@ -297,12 +293,17 @@ export const SearchField = observer(() => {
     searchInputRef.current?.focus();
   };
 
-  const handleSelectSearchResult = (result: SearchResult | DocSetStore) => {
+  const handleSelectDocSetSearchResult = (result: SearchResult) => {
+    if (tabsStore.currentTab) {
+      tabsStore.currentTab.setVisibleSearchResult(result);
+      setSearchResultsOpen(false);
+    }
+  };
+
+  const handleSelectDocSetsSearchResult = (result: DocSetStore) => {
     if (tabsStore.currentTab && tabsStore.currentTab.docSetDetached) {
       tabsStore.currentTab.setDocSet(docSetListStore.docSets[result.name]);
       docSetListStore.clearSearchResults();
-    } else if (tabsStore.currentTab) {
-      tabsStore.currentTab.setVisibleSearchResult(result.name);
     } else {
       const docSet = docSetListStore.docSets[result.name];
       tabsStore.addTab(docSet);
@@ -385,14 +386,14 @@ export const SearchField = observer(() => {
             <DocSetSearchResults
               onBlur={handleBlurSearchResults}
               onCancel={handleCancelSelectSearch}
-              onSelect={handleSelectSearchResult}
+              onSelect={handleSelectDocSetSearchResult}
               ref={searchResultsListRef}
             />
           ) : (
             <DocSetsSearchResults
               onBlur={handleBlurSearchResults}
               onCancel={handleCancelSelectSearch}
-              onSelect={handleSelectSearchResult}
+              onSelect={handleSelectDocSetsSearchResult}
               ref={searchResultsListRef}
             />
           )}

@@ -45,5 +45,10 @@ export const downloadDocSetFeed = async (
 
 export const readDocSetFeedArchive = async (): Promise<DocSetFeed> => {
   const docSetFeedPath = await getDocSetFeedPath();
-  return await ReadFeedArchive(docSetFeedPath);
+  const { docSetFeed, error } = await ReadFeedArchive(docSetFeedPath);
+  if (error) {
+    throw new Error(error);
+  }
+
+  return docSetFeed;
 };

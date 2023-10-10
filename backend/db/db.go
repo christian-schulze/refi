@@ -5,13 +5,11 @@ import (
 	"database/sql"
 	"encoding/xml"
 	"fmt"
-	"github.com/mattn/go-sqlite3"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"os"
 	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
-	"go.deanishe.net/fuzzy"
 )
 
 type DB struct {
@@ -22,13 +20,13 @@ type DB struct {
 func NewDB() *DB {
 	// TODO: spellfix extension is currently compiled and located at `resources/spellfix.so`
 	//   Need to figure out a way to distribute this lib with the app and load correctly
-	sql.Register(
-		"sqlite3_with_spellfix_extension",
-		&sqlite3.SQLiteDriver{
-			Extensions: []string{
-				"resources/spellfix",
-			},
-		})
+	//sql.Register(
+	//	"sqlite3_with_spellfix_extension",
+	//	&sqlite3.SQLiteDriver{
+	//		Extensions: []string{
+	//			"resources/spellfix",
+	//		},
+	//	})
 
 	return &DB{connections: map[string]*sql.DB{}}
 }
@@ -38,8 +36,8 @@ func (a *DB) Startup(ctx context.Context) {
 }
 
 func (a *DB) OpenDB(dbPath string) string {
-	//db, err := sql.Open("sqlite3", dbPath)
-	db, err := sql.Open("sqlite3_with_spellfix_extension", dbPath)
+	db, err := sql.Open("sqlite3", dbPath)
+	//db, err := sql.Open("sqlite3_with_spellfix_extension", dbPath)
 	if err != nil {
 		runtime.LogErrorf(a.ctx, "OpenDB: Error opening db \"%s\"\n%s", dbPath, err)
 		return err.Error()
@@ -239,13 +237,13 @@ func (a *DB) SearchDocSet(dbPath string, term string) SearchDocSetResult {
 	}
 
 	// fuzzy search filtering/ordering
-	sorter := fuzzy.New(docSets)
-	sorter.Configure(fuzzy.UnmatchedLetterPenalty(0))
-	results := sorter.Sort(term)
+	//sorter := fuzzy.New(docSets)
+	//sorter.Configure(fuzzy.UnmatchedLetterPenalty(0))
+	//results := sorter.Sort(term)
 
-	for _, result := range results {
-		runtime.LogPrintf(a.ctx, "%+v", result)
-	}
+	//for _, result := range results {
+	//	runtime.LogPrintf(a.ctx, "%+v", result)
+	//}
 
 	return SearchDocSetResult{Results: docSets, Error: ""}
 }

@@ -26,6 +26,7 @@ export class DocSetStore {
 
       resourcesPath: computed,
       dbPath: computed,
+      indexPath: computed,
       tokensXmlPath: computed,
       documentsPath: computed,
       htmlIndexPath: computed,
@@ -58,6 +59,13 @@ export class DocSetStore {
   get dbPath() {
     if (this.path) {
       return `${this.path}${window.pathSeperator}Contents${window.pathSeperator}Resources${window.pathSeperator}docSet.dsidx`;
+    }
+    return '';
+  }
+
+  get indexPath() {
+    if (this.path) {
+      return `${this.path}${window.pathSeperator}beveIndex`;
     }
     return '';
   }

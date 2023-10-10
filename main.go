@@ -4,14 +4,15 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"github.com/wailsapp/wails/v2"
 	"net/http"
 	"os"
 	"refi/backend/config"
 	"refi/backend/db"
 	"refi/backend/docsets"
 	"refi/backend/fs"
+	"refi/backend/search"
 
+	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 )
@@ -47,6 +48,7 @@ func main() {
 	beDB := db.NewDB()
 	beDocSets := docsets.NewDocSets()
 	beFS := fs.NewFS()
+	beSearch := search.NewSearch()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -64,6 +66,7 @@ func main() {
 			beDB.Startup(ctx)
 			beDocSets.Startup(ctx)
 			beFS.Startup(ctx)
+			beSearch.Startup(ctx)
 		},
 		Bind: []interface{}{
 			app,
@@ -71,6 +74,7 @@ func main() {
 			beDB,
 			beDocSets,
 			beFS,
+			beSearch,
 		},
 	})
 

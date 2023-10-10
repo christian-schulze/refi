@@ -1,5 +1,6 @@
 import { CSSProperties, ReactNode } from 'react';
 import styled from '@emotion/styled';
+import { cx } from '@emotion/css';
 
 export type Variants =
   | 'heading1'
@@ -91,6 +92,7 @@ export interface TypographyProps extends CSSProperties {
 }
 
 export const Typography = ({
+  className,
   children,
   tag = 'p',
   variant,
@@ -99,7 +101,7 @@ export const Typography = ({
   return (
     <StyledTypography
       as={tag}
-      className={variant}
+      className={cx(variant, className)}
       style={{ ...props }}
     >
       {children}

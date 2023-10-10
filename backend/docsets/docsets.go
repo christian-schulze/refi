@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"compress/gzip"
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -31,18 +32,26 @@ func (a *DocSets) Startup(ctx context.Context) {
 func (a *DocSets) DownloadFeedArchive(eventId string, url string, filePath string) string {
 	err := a.downloadFile(eventId, url, filePath)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "DownloadFeedArchive: Error downloading feed \"%s\"\n%s", url, err)
-		return err.Error()
+		message := fmt.Sprintf("DownloadFeedArchive: Error downloading feed \"%s\"\n%s", url, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return message
 	}
 	return ""
 }
 
 type DocSetFeed map[string]string
 
-func (a *DocSets) ReadFeedArchive(filePath string) DocSetFeed {
+type ReadFeedArchiveResult struct {
+	DocSetFeed DocSetFeed `json:"docSetFeed"`
+	Error      string     `json:"error"`
+}
+
+func (a *DocSets) ReadFeedArchive(filePath string) ReadFeedArchiveResult {
 	r, err := zip.OpenReader(filePath)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "ReadFeedArchive: Error reading feed \"%s\"\n%s", filePath, err)
+		message := fmt.Sprintf("ReadFeedArchive: Error reading feed \"%s\"\n%s", filePath, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return ReadFeedArchiveResult{Error: message}
 	}
 	defer r.Close()
 
@@ -51,11 +60,11 @@ func (a *DocSets) ReadFeedArchive(filePath string) DocSetFeed {
 		if strings.HasSuffix(file.Name, ".xml") {
 			rc, err := file.Open()
 			if err != nil {
-				runtime.LogErrorf(a.ctx, "ReadFeedArchive: Error opening file within archive \"%s\"\n%s", file.Name, err)
+				runtime.LogErrorf(a.ctx, "ReadFeedArchive: Error opening file within archive \"%s\"\n%s", file.Name, err.Error())
 			}
 			fileContents, err := io.ReadAll(rc)
 			if err != nil {
-				runtime.LogErrorf(a.ctx, "ReadFeedArchive: Error reading file within archive \"%s\"\n%s", file.Name, err)
+				runtime.LogErrorf(a.ctx, "ReadFeedArchive: Error reading file within archive \"%s\"\n%s", file.Name, err.Error())
 			}
 			var sanitizedKey = strings.Replace(file.Name, "feeds-master/", "", 1)
 			sanitizedKey = strings.Replace(sanitizedKey, ".xml", "", 1)
@@ -64,14 +73,15 @@ func (a *DocSets) ReadFeedArchive(filePath string) DocSetFeed {
 		}
 	}
 
-	return docSetFeed
+	return ReadFeedArchiveResult{DocSetFeed: docSetFeed}
 }
 
 func (a *DocSets) DownloadFile(eventId string, url string, filePath string) string {
 	err := a.downloadFile(eventId, url, filePath)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "DownloadFile: Error downloading file \"%s\"\n%s", url, err)
-		return err.Error()
+		message := fmt.Sprintf("DownloadFile: Error downloading file \"%s\"\n%s", url, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return message
 	}
 	return ""
 }
@@ -79,42 +89,51 @@ func (a *DocSets) DownloadFile(eventId string, url string, filePath string) stri
 func (a *DocSets) DecompressDocSetArchive(tarFilePath string, dirPath string) string {
 	f, err := os.OpenFile(tarFilePath, os.O_RDONLY, 0644)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "DecompressDocSetArchive: Error opening tar file \"%s\"\n%s", tarFilePath, err)
-		return err.Error()
+		message := fmt.Sprintf("DecompressDocSetArchive: Error opening tar file \"%s\"\n%s", tarFilePath, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return message
 	}
 
 	r := bufio.NewReader(f)
 	gzipReader, err := gzip.NewReader(r)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "DecompressDocSetArchive: Error creating gzip reader \"%s\"\n%s", tarFilePath, err)
-		return err.Error()
+		message := fmt.Sprintf("DecompressDocSetArchive: Error creating gzip reader \"%s\"\n%s", tarFilePath, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return message
 	}
 
 	err = untar(gzipReader, dirPath)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "DecompressDocSetArchive: Error extracting tar file \"%s\"\n%s", tarFilePath, err)
-		return err.Error()
+		message := fmt.Sprintf("DecompressDocSetArchive: Error extracting tar file \"%s\"\n%s", tarFilePath, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return message
 	}
 
 	return ""
 }
 
-func (a *DocSets) GetDownloadedDocSetPaths(docSetsPath string) []string {
-	var downloadedDocSets []string
+type GetDownloadedDocSetPaths struct {
+	DocSetPaths []string `json:"docSetPaths"`
+	Error       string   `json:"error"`
+}
+
+func (a *DocSets) GetDownloadedDocSetPaths(docSetsPath string) GetDownloadedDocSetPaths {
+	var docSetPaths []string
 
 	dirEntries, err := os.ReadDir(docSetsPath)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "GetDownloadedDocSetPaths: Error reading dir \"%s\"\n%s", docSetsPath, err.Error())
-		return downloadedDocSets
+		message := fmt.Sprintf("GetDownloadedDocSetPaths: Error reading dir \"%s\"\n%s", docSetsPath, err.Error())
+		runtime.LogErrorf(a.ctx, message)
+		return GetDownloadedDocSetPaths{Error: message}
 	}
 
 	for _, dirEntry := range dirEntries {
 		if strings.HasSuffix(dirEntry.Name(), ".docset") {
-			downloadedDocSets = append(downloadedDocSets, path.Join(docSetsPath, dirEntry.Name()))
+			docSetPaths = append(docSetPaths, path.Join(docSetsPath, dirEntry.Name()))
 		}
 	}
 
-	return downloadedDocSets
+	return GetDownloadedDocSetPaths{DocSetPaths: docSetPaths}
 }
 
 //-----------------------------------------------------------------------------

@@ -31,6 +31,16 @@ const Container = styled.div`
   padding-right: 8px;
 `;
 
+const Heading = styled(Typography)`
+  color: ${({ theme }) => theme.palette.secondary.main};
+`;
+
+const Timestamp = styled(Typography)`
+  span {
+    color: ${({ theme }) => theme.palette.text.hint};
+  }
+`;
+
 const formatDate = (date: Date) => {
   const day = date.getDate();
   const month = MONTHS[date.getMonth()];
@@ -49,36 +59,41 @@ export const DocSets = observer(() => {
 
   const renderDownloadedTimestamp = () => {
     if (docSetFeedStore.loadingDocSetFeedDownloadedTimestamp) {
-      return 'Available docset list loading...';
+      return 'Preparing list of available docsets...';
     }
 
     if (docSetFeedStore.downloadingDocSetFeed) {
-      return 'Available docset list downloading...';
+      return 'Downloading list of available docsets...';
     }
 
     if (docSetFeedStore.loadingDocSetFeed) {
-      return 'Available docset list loading...';
+      return 'Preparing list of available docsets...';
     }
 
     if (docSetFeedStore.docSetFeedDownloadedTimestamp) {
       const downloadedDate = new Date(
         docSetFeedStore.docSetFeedDownloadedTimestamp,
       );
-      return `Available docset list last downloaded on ${formatDate(
-        downloadedDate,
-      )} ${formatTime(downloadedDate)}`;
+      return (
+        <>
+          List of available docsets last downloaded on{' '}
+          <Typography tag="span" variant="overline">
+            {formatDate(downloadedDate)} {formatTime(downloadedDate)}
+          </Typography>
+        </>
+      );
     }
 
-    return 'Available docset list has not been downloaded yet.';
+    return 'List of available docsets has not been downloaded yet.';
   };
 
   return (
     <Container>
-      <Typography variant='subtitle1'>Installed docsets</Typography>
+      <Heading variant="subtitle2">Installed docsets</Heading>
       <InstalledDocSetList />
-      <Typography variant='subtitle1'>Available docsets</Typography>
+      <Heading variant="subtitle2">Available docsets</Heading>
       <AvailableDocSetList />
-      <Typography variant='overline'>{renderDownloadedTimestamp()}</Typography>
+      <Timestamp variant="overline">{renderDownloadedTimestamp()}</Timestamp>
     </Container>
   );
 });

@@ -15,7 +15,7 @@ import { useStores } from 'stores';
 
 import { Input } from 'components/Input';
 
-const DocSetAlias = styled.div<{ alias: string }>`
+const DocSetAlias = styled.div<{ alias: string, selected: boolean }>`
   padding-left: 4px;
   padding-right: 4px;
   border-radius: 2px;
@@ -25,12 +25,22 @@ const DocSetAlias = styled.div<{ alias: string }>`
     ${({ theme }) => lighten(0.05, theme.palette.background.default)};
   line-height: 23px;
 
-  ${({ alias, theme }) => {
+  ${({ alias, selected, theme }) => {
     if (alias === '') {
       return `color: ${theme.palette.text.disabled};`;
     }
+    if (selected) {
+      return `
+        color: ${darken(0.6, theme.palette.text.primary)} !important;
+        font-weight: 600;
+        
+        :hover {
+          color: ${darken(0.2, theme.palette.text.primary)} !important;
+        }
+      `;
+    }
   }}
-
+  
   :hover {
     background: ${({ theme }) => darken(0.1, theme.palette.primary.main)};
   }
@@ -38,10 +48,11 @@ const DocSetAlias = styled.div<{ alias: string }>`
 
 export interface EditDocSetAliasInputProps {
   name: string;
+  selected: boolean;
 }
 
 export const EditDocSetAliasInput = observer(
-  ({ name }: EditDocSetAliasInputProps) => {
+  ({ name, selected }: EditDocSetAliasInputProps) => {
     const { docSetAliasStore } = useStores();
     const editAliasInputRef = useRef<HTMLInputElement>(null);
     const [editedAlias, setEditedAlias] = useState('');
@@ -98,6 +109,7 @@ export const EditDocSetAliasInput = observer(
             onKeyDown={handleKeyDown}
             placeholder="Enter an alias"
             sx={{
+              maxWidth: '200px',
               borderRadius: '2px',
               '.MuiInputBase-input': {
                 padding: '0 4px',
@@ -117,7 +129,7 @@ export const EditDocSetAliasInput = observer(
             value={editedAlias}
           />
         ) : (
-          <DocSetAlias alias={alias} onClick={handleClickEditAlias}>
+          <DocSetAlias alias={alias} onClick={handleClickEditAlias} selected={selected}>
             {alias || name.toLowerCase()}
           </DocSetAlias>
         )}

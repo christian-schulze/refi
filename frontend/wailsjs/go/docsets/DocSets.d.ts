@@ -9,8 +9,8 @@ export function DownloadFeedArchive(arg1:string,arg2:string,arg3:string):Promise
 
 export function DownloadFile(arg1:string,arg2:string,arg3:string):Promise<string>;
 
-export function GetDownloadedDocSetPaths(arg1:string):Promise<Array<string>>;
+export function GetDownloadedDocSetPaths(arg1:string):Promise<docsets.GetDownloadedDocSetPaths>;
 
-export function ReadFeedArchive(arg1:string):Promise<docsets.DocSetFeed>;
+export function ReadFeedArchive(arg1:string):Promise<docsets.ReadFeedArchiveResult>;
 
 export function Startup(arg1:context.Context):Promise<void>;

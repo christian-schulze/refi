@@ -1,4 +1,4 @@
-import { action, makeObservable, observable } from 'mobx';
+import { action, makeObservable, observable, runInAction } from 'mobx';
 
 import { doesPathExist } from 'services/path';
 import { removeDir, removeFile, rename, writeFile } from 'services/fs';
@@ -9,6 +9,7 @@ import {
   downloadDocSetIcons,
   loadDocSet,
 } from 'services/docSetManager';
+import { createDocSetIndex } from 'services/search';
 
 import { ErrorsStore } from './ErrorsStore';
 import { SettingsStore } from './SettingsStore';
@@ -58,7 +59,9 @@ export class DocSetManagerStore {
         const docSetArchivePath = `${docSetsPath}${window.pathSeperator}${name}.${fileExtension}`;
         const docSetPath = `${docSetsPath}${window.pathSeperator}${name}.docset`;
         await downloadDocSet(url, docSetArchivePath, (progress, total) => {
-          this.updateDownloadProgress(name, (progress / total) * 100);
+          runInAction(() => {
+            this.updateDownloadProgress(name, (progress / total) * 100);
+          });
         });
         await decompressDocSetArchive(docSetArchivePath, docSetsPath);
         await writeFile(
@@ -84,13 +87,34 @@ export class DocSetManagerStore {
           );
         }
 
+        await createDocSetIndex(docSetStore.indexPath, docSetStore.dbPath);
+
         // TODO: experimenting with spellfix sqlite extension for fuzzy matching
         // await createFuzzySearchIndex(docSetStore.dbPath);
       }
     } catch (error) {
       this.errorsStore.addError(error as Error);
     } finally {
-      this.removeDownloadProgress(name);
+      runInAction(() => {
+        this.removeDownloadProgress(name);
+      });
+    }
+  }
+
+  async reIndexDocSet(name: string) {
+    try {
+      const docSetsPath = this.settingsStore.docSetsPath;
+      const docSetPath = `${docSetsPath}${window.pathSeperator}${name}.docset`;
+      const docSet = await loadDocSet(docSetPath);
+      const docSetStore = new DocSetStore(docSet);
+      await removeDir(docSetStore.indexPath);
+      await createDocSetIndex(docSetStore.indexPath, docSetStore.dbPath);
+    } catch (error) {
+      this.errorsStore.addError(error as Error);
+    } finally {
+      runInAction(() => {
+        this.removeDownloadProgress(name);
+      });
     }
   }
 

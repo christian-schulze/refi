@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import styled from '@emotion/styled';
+import { darken } from 'polished';
 
 import { SettingsItem, SettingsItems } from 'stores/SettingsStore';
 
@@ -22,14 +23,25 @@ const ListItem = styled.div<{ selected?: boolean }>`
   display: flex;
   padding: 4px;
 
+  &:hover {
+    background-color: ${({ theme }) =>
+      darken(0.2, theme.palette.secondary.main)};
+  }
+
   ${({ selected, theme }) => {
     if (selected) {
       return `
-        p {
-          color: ${theme.palette.text.primary};
-          font-weight: 500;
+        p:first-of-type {
+          color: ${darken(0.6, theme.palette.text.primary)} !important;
+          font-weight: 600 !important;
         }
         background-color: ${theme.palette.secondary.main};
+        
+        :hover {
+          p:first-of-type {
+            color: ${darken(0.2, theme.palette.text.primary)} !important;
+          }
+        }
       `;
     }
   }}

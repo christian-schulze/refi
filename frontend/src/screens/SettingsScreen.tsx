@@ -5,6 +5,8 @@ import { Resizable } from 're-resizable';
 import styled from '@emotion/styled';
 import Button from '@mui/material/Button';
 
+import { BrowserOpenURL } from '../../wailsjs/runtime';
+
 import { useStores } from 'stores';
 import { SettingsItem } from 'stores/SettingsStore';
 
@@ -12,6 +14,7 @@ import { SettingsList } from 'components/Settings/SettingsList';
 import { GeneralSettingsPanel } from 'components/Settings/GeneralSettingsPanel';
 import { DocSets } from 'components/Settings/DocSets';
 import { ListProps } from 'components/List';
+import { Typography } from '../components/Typography.tsx';
 
 const Container = styled.div`
   flex-grow: 1;
@@ -31,8 +34,14 @@ const ResizableWrapper = styled(Resizable)`
 
 const Footer = styled.div`
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
   padding: 8px;
+`;
+
+const AcknowledgementLink = styled.a`
+  text-decoration: none;
+  color: ${({ theme }) => theme.palette.secondary.main};
 `;
 
 export const SettingsScreen = observer(() => {
@@ -41,6 +50,13 @@ export const SettingsScreen = observer(() => {
 
   const handleSelect: ListProps<SettingsItem>['onSelect'] = (item) => {
     settingsStore.setSelectedSettingsId(item.id);
+  };
+
+  const handleClickAcknowledgementLink = (
+    event: MouseEvent<HTMLAnchorElement>,
+  ) => {
+    event.preventDefault();
+    BrowserOpenURL('https://kapeli.com/dash');
   };
 
   const handleClickClose = (_event: MouseEvent<HTMLButtonElement>) => {
@@ -66,6 +82,14 @@ export const SettingsScreen = observer(() => {
           <DocSets />
         ) : null}
         <Footer>
+          <AcknowledgementLink
+            href="https://kapeli.com/dash"
+            onClick={handleClickAcknowledgementLink}
+          >
+            <Typography variant="subtitle2">
+              Docsets provided by Dash
+            </Typography>
+          </AcknowledgementLink>
           <Button
             color="secondary"
             onClick={handleClickClose}

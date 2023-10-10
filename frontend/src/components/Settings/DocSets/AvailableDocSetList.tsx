@@ -1,20 +1,16 @@
-import { ChangeEvent, MouseEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { autorun } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { darken, lighten } from 'polished';
 import styled from '@emotion/styled';
-import Chip from '@mui/material/Chip';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
-import DownloadIcon from '@mui/icons-material/Download';
-
-import { DotsSpinnerIcon } from 'components/icons/DotsSpinnerIcon';
 
 import { useStores } from 'stores';
 
 import { Typography } from 'components/Typography';
 import { List, ListProps } from 'components/List';
 import { Input } from 'components/Input';
+
+import { AvailableDocSetItem } from './AvailableDocSetItem';
 
 const StyledDocSetList = styled(List)`
   flex-grow: 1;
@@ -45,25 +41,7 @@ const DocSetListHeader = styled.div`
   }
 `;
 
-const DocSetListItem = styled.div<{ selected?: boolean }>`
-  display: flex;
-  padding-left: 8px;
-  padding-right: 12px;
-
-  > .body:nth-of-type(1) {
-    flex-grow: 1;
-  }
-
-  ${({ selected, theme }) => {
-    if (selected) {
-      return `
-        background-color: ${theme.palette.secondary.main};
-      `;
-    }
-  }}
-`;
-
-const ActionsSection = styled.div`
+const ActionsColumnHeader = styled.div`
   display: flex;
   justify-content: flex-end;
   min-width: 100px;
@@ -72,7 +50,7 @@ const ActionsSection = styled.div`
 `;
 
 export const AvailableDocSetList = observer(() => {
-  const { docSetFeedStore, docSetManagerStore, docSetListStore } = useStores();
+  const { docSetFeedStore, docSetListStore } = useStores();
 
   const [filterValue, setFilterValue] = useState('');
   const [filteredDocSetNames, setFilteredDocSetNames] = useState<Array<string>>(
@@ -110,16 +88,6 @@ export const AvailableDocSetList = observer(() => {
     setSelectedDocSetName(name);
   };
 
-  const handleClickDownload =
-    (name: string) => async (_event: MouseEvent<HTMLButtonElement>) => {
-      const urls = docSetFeedStore.getDocSetUrls(name);
-      const version = docSetFeedStore.getDocSetVersion(name);
-      if (urls.length > 0) {
-        await docSetManagerStore.installDocSet(urls[0], name, version);
-        docSetListStore.loadDocSets();
-      }
-    };
-
   return (
     <>
       <Input
@@ -150,46 +118,14 @@ export const AvailableDocSetList = observer(() => {
         header={
           <DocSetListHeader>
             <Typography variant="subtitle2">Docset name</Typography>
-            <ActionsSection />
+            <ActionsColumnHeader />
           </DocSetListHeader>
         }
         items={filteredDocSetNames}
         itemSize={24}
         onSelect={handleSelect}
         renderItem={(name, props) => {
-          return (
-            <DocSetListItem key={name} {...props}>
-              <Typography variant="body">{name}</Typography>
-              <ActionsSection>
-                {docSetManagerStore.docSetDownloadProgress[name] ? (
-                  <Chip
-                    color="success"
-                    icon={<DotsSpinnerIcon />}
-                    label={
-                      docSetManagerStore.docSetDownloadProgress[name] + '%'
-                    }
-                    size="small"
-                  />
-                ) : (
-                  <Tooltip
-                    title={
-                      <>
-                        Download the <b>"{name}"</b> DocSet.
-                      </>
-                    }
-                    placement="left"
-                  >
-                    <IconButton
-                      onClick={handleClickDownload(name)}
-                      size="small"
-                    >
-                      <DownloadIcon sx={{ color: 'green' }} />
-                    </IconButton>
-                  </Tooltip>
-                )}
-              </ActionsSection>
-            </DocSetListItem>
-          );
+          return <AvailableDocSetItem key={name} name={name} {...props} />;
         }}
         selectedItem={selectedDocSetName}
         tabIndex={0}

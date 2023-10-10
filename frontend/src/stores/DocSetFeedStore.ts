@@ -4,7 +4,7 @@ import {
   downloadDocSetFeed,
   getLastDownloadedTimestamp,
   readDocSetFeedArchive,
-} from 'services/docSetFeedDownloader';
+} from 'services/docSetFeedManager';
 import {
   createStateMachine,
   interpretStateMachine,

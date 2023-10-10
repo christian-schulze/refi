@@ -10,6 +10,13 @@ import { Typography } from 'components/Typography';
 import { List, ListProps } from 'components/List';
 import { SearchResultItem } from 'components/SearchResultItem';
 
+const StyledToken = styled(Typography)`
+  flex-grow: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+`;
+
 const NoResults = styled.div`
   display: flex;
   justify-content: center;
@@ -34,7 +41,7 @@ const DocSetSearchResultsInner = (
     selectedSearchResult,
     selectionType,
   ) => {
-    tabsStore.currentTab?.setSelectedSearchResult(selectedSearchResult.name);
+    tabsStore.currentTab?.setSelectedSearchResult(selectedSearchResult);
     if (['mouse-click', 'enter-key'].includes(selectionType)) {
       onSelect(selectedSearchResult, selectionType);
     }
@@ -60,8 +67,9 @@ const DocSetSearchResultsInner = (
       ref={ref}
       renderItem={(result, props) => {
         return (
-          <SearchResultItem key={result.name} {...props}>
-            <Typography variant="body">{result.name}</Typography>
+          <SearchResultItem key={result.id} {...props}>
+            <StyledToken variant="body">{result.name}</StyledToken>
+            <Typography variant="body">{result.type}</Typography>
           </SearchResultItem>
         );
       }}

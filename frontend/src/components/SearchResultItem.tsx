@@ -9,6 +9,7 @@ interface StyledListItemProps {
 const StyledListItem = styled.div<StyledListItemProps>`
   display: flex;
   align-items: center;
+
   padding: 4px;
   min-height: 24px;
   max-height: 24px;
@@ -16,6 +17,10 @@ const StyledListItem = styled.div<StyledListItemProps>`
   &:hover {
     background-color: ${({ theme }) =>
       darken(0.2, theme.palette.secondary.main)};
+  }
+
+  p:nth-of-type(2) {
+    color: ${({ theme }) => darken(0.5, theme.palette.text.primary)} !important;
   }
 
   ${({ selected, theme }) => {
