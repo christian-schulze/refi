@@ -32,15 +32,15 @@ export const getConfigDir = async (ensureExists = true): Promise<string> => {
 };
 
 export const getDataDir = async (ensureExists = true): Promise<string> => {
-  const configDir = `${await GetUserDataDir()}${
+  const dataDir = `${await GetUserDataDir()}${
     window.pathSeperator
   }${await GetAppName()}`;
 
-  if (ensureExists && !(await DoesPathExist(configDir))) {
-    await createDir(configDir);
+  if (ensureExists && !(await DoesPathExist(dataDir))) {
+    await createDir(dataDir);
   }
 
-  return configDir;
+  return dataDir;
 };
 
 export const getConfigFilePath = async (): Promise<string> => {
@@ -49,10 +49,18 @@ export const getConfigFilePath = async (): Promise<string> => {
   return `${configDir}${window.pathSeperator}${CONFIG_FILE_NAME}`;
 };
 
-export const getDefaultDocSetsDir = async (): Promise<string> => {
+export const getDefaultDocSetsDir = async (
+  ensureExists = true,
+): Promise<string> => {
   const dataDir = await getDataDir();
 
-  return `${dataDir}${window.pathSeperator}docsets`;
+  const docSetDir = `${dataDir}${window.pathSeperator}docsets`;
+
+  if (ensureExists && !(await DoesPathExist(docSetDir))) {
+    await createDir(docSetDir);
+  }
+
+  return docSetDir;
 };
 
 export const getDocSetFeedPath = async (): Promise<string> => {
