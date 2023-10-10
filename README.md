@@ -7,6 +7,8 @@
 `Refi` is an open source API Documentation Browser for `Linux`, which makes use of [DocSets](https://kapeli.com/docsets)
 (with permission) originally used in the [Dash](https://kapeli.com/dash) application for OSX.
 
+[refi-demo.webm](https://github.com/christian-schulze/refi/assets/239226/fd230e2e-f884-41eb-a410-8051e04956da)
+
 ## Status
 
 This project is still very much a WIP. You can install DocSets, search for and view results.
