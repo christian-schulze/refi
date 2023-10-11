@@ -11,10 +11,10 @@ import { useStores } from 'stores';
 import { SettingsItem } from 'stores/SettingsStore';
 
 import { ListProps } from 'components/List';
-import { DocSets } from 'components/Settings/DocSets';
+import { DocSets } from 'components/Settings/DocSetsPanel';
 import { GeneralSettingsPanel } from 'components/Settings/GeneralSettingsPanel';
 import { SettingsList } from 'components/Settings/SettingsList';
-import { Typography } from '../components/Typography.tsx';
+import { Typography } from '../components/Typography';
 
 const Container = styled.div`
   flex-grow: 1;

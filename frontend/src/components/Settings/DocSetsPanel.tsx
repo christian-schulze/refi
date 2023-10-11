@@ -4,8 +4,8 @@ import { observer } from 'mobx-react-lite';
 import { useStores } from 'stores';
 
 import { Typography } from 'components/Typography';
-import { AvailableDocSetList } from './AvailableDocSetList';
-import { InstalledDocSetList } from './InstalledDocSetList';
+import { AvailableDocSetList } from './DocSets/AvailableDocSetList';
+import { InstalledDocSetList } from './DocSets/InstalledDocSetList';
 
 const MONTHS = [
   'Jan',
