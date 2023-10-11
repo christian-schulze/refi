@@ -67,7 +67,7 @@ export const InstalledDocSetList = observer(() => {
 
   const handleClickReindex = async (name: string) => {
     const docSet = docSetListStore.docSets[name];
-    await docSetManagerStore.reIndexDocSet(docSet.feedEntryName);
+    await docSetManagerStore.reIndexDocSet(docSet);
   };
 
   const handleClickUpdate = async (name: string) => {

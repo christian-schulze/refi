@@ -10,7 +10,7 @@ import (
 	"refi/backend/db"
 	"refi/backend/docsets"
 	"refi/backend/fs"
-	"refi/backend/search"
+	"refi/backend/indexer"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -48,7 +48,7 @@ func main() {
 	beDB := db.NewDB()
 	beDocSets := docsets.NewDocSets()
 	beFS := fs.NewFS()
-	beSearch := search.NewSearch()
+	beIndex := indexer.NewIndexer()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -66,7 +66,7 @@ func main() {
 			beDB.Startup(ctx)
 			beDocSets.Startup(ctx)
 			beFS.Startup(ctx)
-			beSearch.Startup(ctx)
+			beIndex.Startup(ctx)
 		},
 		Bind: []interface{}{
 			app,
@@ -74,7 +74,7 @@ func main() {
 			beDB,
 			beDocSets,
 			beFS,
-			beSearch,
+			beIndex,
 		},
 	})
 

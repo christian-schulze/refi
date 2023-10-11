@@ -7,6 +7,7 @@ import {
 } from 'mobx';
 
 import { DocSet, deleteDocSet, loadDocSets } from 'services/docSetManager';
+import { closeIndex } from 'services/indexer.ts';
 
 import { DocSetStore } from './DocSetStore';
 import { ErrorsStore } from './ErrorsStore';
@@ -104,7 +105,9 @@ export class DocSetListStore {
   async deleteDocSet(name: string) {
     if (name in this.docSets) {
       try {
-        await deleteDocSet(this.docSets[name].path);
+        const docSet = this.docSets[name];
+        await closeIndex(docSet.indexPath);
+        await deleteDocSet(docSet.path);
         runInAction(() => {
           delete this.docSets[name];
         });

@@ -1,7 +1,15 @@
 import {
+  CloseIndex,
   CreateDocSetIndex,
   SearchDocSet,
-} from '../../wailsjs/go/search/Search.js';
+} from '../../wailsjs/go/indexer/Indexer';
+
+export const closeIndex = async (indexPath: string) => {
+  const error = await CloseIndex(indexPath);
+  if (error) {
+    throw new Error(error);
+  }
+};
 
 export const createDocSetIndex = async (indexPath: string, dbPath: string) => {
   const error = await CreateDocSetIndex(indexPath, dbPath);

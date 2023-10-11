@@ -174,16 +174,16 @@ export namespace fs {
 
 }
 
-export namespace search {
+export namespace indexer {
 	
-	export class SearchResult {
+	export class IndexedItem {
 	    id: number;
 	    name: string;
 	    type: string;
 	    path: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new SearchResult(source);
+	        return new IndexedItem(source);
 	    }
 	
 	    constructor(source: any = {}) {
@@ -195,7 +195,7 @@ export namespace search {
 	    }
 	}
 	export class SearchDocSetResult {
-	    results: SearchResult[];
+	    results: IndexedItem[];
 	    error: string;
 	
 	    static createFrom(source: any = {}) {
@@ -204,7 +204,7 @@ export namespace search {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.results = this.convertValues(source["results"], SearchResult);
+	        this.results = this.convertValues(source["results"], IndexedItem);
 	        this.error = source["error"];
 	    }
 	

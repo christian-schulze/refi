@@ -8,8 +8,8 @@ import {
   loadDocSet,
 } from 'services/docSetManager';
 import { removeDir, removeFile, rename, writeFile } from 'services/fs';
+import { closeIndex, createDocSetIndex } from 'services/indexer.ts';
 import { doesPathExist } from 'services/path';
-import { createDocSetIndex } from 'services/search';
 
 import { DocSetFeedStore } from './DocSetFeedStore';
 import { DocSetStore } from './DocSetStore';
@@ -128,25 +128,26 @@ export class DocSetManagerStore {
     }
   }
 
-  async reIndexDocSet(name: string) {
+  async reIndexDocSet(docSet: DocSetStore) {
     try {
-      const docSetsPath = this.settingsStore.docSetsPath;
-      const docSetPath = `${docSetsPath}${window.pathSeperator}${name}.docset`;
-      const docSet = await loadDocSet(docSetPath);
-      const docSetStore = new DocSetStore(docSet);
-      await removeDir(docSetStore.indexPath);
-      await createDocSetIndex(docSetStore.indexPath, docSetStore.dbPath);
+      runInAction(() => {
+        this.updateInstallStatus(docSet.feedEntryName, 'Indexing');
+      });
+      await closeIndex(docSet.indexPath);
+      await removeDir(docSet.indexPath);
+      await createDocSetIndex(docSet.indexPath, docSet.dbPath);
     } catch (error) {
       this.errorsStore.addError(error as Error);
     } finally {
       runInAction(() => {
-        this.removeInstallProgress(name);
+        this.updateInstallStatus(docSet.feedEntryName, 'Done');
       });
     }
   }
 
   async updateDocSet(docSet: DocSetStore, docSetFeedStore: DocSetFeedStore) {
     try {
+      await closeIndex(docSet.indexPath);
       await rename(docSet.path, `${docSet.path}-old`);
 
       const urls = docSetFeedStore.getDocSetUrls(docSet.feedEntryName);

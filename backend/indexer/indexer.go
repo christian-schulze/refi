@@ -1,4 +1,4 @@
-package search
+package indexer
 
 import (
 	"context"
@@ -15,19 +15,38 @@ import (
 	"strings"
 )
 
-type Search struct {
-	ctx context.Context
+type Indexer struct {
+	ctx         context.Context
+	connections map[string]bleve.Index
 }
 
-func NewSearch() *Search {
-	return &Search{}
+func NewIndexer() *Indexer {
+	return &Indexer{connections: map[string]bleve.Index{}}
 }
 
-func (s *Search) Startup(ctx context.Context) {
-	s.ctx = ctx
+func (i *Indexer) Startup(ctx context.Context) {
+	i.ctx = ctx
 }
 
-type SearchResult struct {
+func (i *Indexer) CloseIndex(indexPath string) string {
+	index := i.connections[indexPath]
+	if index == nil {
+		runtime.LogPrintf(i.ctx, fmt.Sprintf("Close: connection not found \"%s\"", indexPath))
+		return ""
+	}
+
+	err := index.Close()
+	if err != nil {
+		message := fmt.Sprintf("Close: Error closing index \"%s\"\n%s", indexPath, err.Error())
+		runtime.LogErrorf(i.ctx, message)
+		return message
+	}
+
+	delete(i.connections, indexPath)
+	return ""
+}
+
+type IndexedItem struct {
 	Id      int32  `json:"id"`
 	Name    string `json:"name"`
 	RowType string `json:"type"`
@@ -36,21 +55,21 @@ type SearchResult struct {
 
 // Type
 // Satisfy the `bleve.Classifier` interface, so bleve classifies this struct as the `DocSet` document type
-func (d *SearchResult) Type() string {
+func (i *IndexedItem) Type() string {
 	return "DocSet"
 }
 
-func (d *SearchResult) Index(index *bleve.Batch) error {
-	err := index.Index(string(d.Id), d)
+func (i *IndexedItem) Index(index *bleve.Batch) error {
+	err := index.Index(string(i.Id), i)
 	return err
 }
 
-func (s *Search) CreateDocSetIndex(indexPath string, dbPath string) string {
-	bleveIndexMapping := newBleveIndexMapping(s)
+func (i *Indexer) CreateDocSetIndex(indexPath string, dbPath string) string {
+	bleveIndexMapping := newBleveIndexMapping(i)
 	bleveIndex, err := bleve.New(indexPath, bleveIndexMapping)
 	if err != nil {
 		message := fmt.Sprintf("CreateDocSetIndex: Error creating bleve index \"%s\"\n%s", indexPath, err.Error())
-		runtime.LogErrorf(s.ctx, message)
+		runtime.LogErrorf(i.ctx, message)
 		return message
 	}
 	defer bleveIndex.Close()
@@ -58,7 +77,7 @@ func (s *Search) CreateDocSetIndex(indexPath string, dbPath string) string {
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		message := fmt.Sprintf("CreateDocSetIndex: Error opening db \"%s\"\n%s", dbPath, err.Error())
-		runtime.LogErrorf(s.ctx, message)
+		runtime.LogErrorf(i.ctx, message)
 		return err.Error()
 	}
 	defer db.Close()
@@ -66,7 +85,7 @@ func (s *Search) CreateDocSetIndex(indexPath string, dbPath string) string {
 	stmt, err := db.Prepare("SELECT si.id, si.name, si.type, si.path FROM searchIndex si;")
 	if err != nil {
 		message := fmt.Sprintf("CreateDocSetIndex: Error preparing query for \"%s\"\n%s", dbPath, err)
-		runtime.LogErrorf(s.ctx, message)
+		runtime.LogErrorf(i.ctx, message)
 		return message
 	}
 	defer stmt.Close()
@@ -74,57 +93,61 @@ func (s *Search) CreateDocSetIndex(indexPath string, dbPath string) string {
 	rows, err := stmt.Query()
 	if err != nil {
 		message := fmt.Sprintf("CreateDocSetIndex: Error querying db \"%s\"\n%s", dbPath, err)
-		runtime.LogErrorf(s.ctx, message)
+		runtime.LogErrorf(i.ctx, message)
 		return message
 	}
 	defer rows.Close()
 
 	bleveBatch := bleveIndex.NewBatch()
 	for rows.Next() {
-		var docSetRow = SearchResult{}
+		var docSetRow = IndexedItem{}
 		err = rows.Scan(&docSetRow.Id, &docSetRow.Name, &docSetRow.RowType, &docSetRow.Path)
 		if err != nil {
 			message := fmt.Sprintf("CreateDocSetIndex: Error scanning db row \"%s\"\n%s", dbPath, err.Error())
-			runtime.LogErrorf(s.ctx, message)
+			runtime.LogErrorf(i.ctx, message)
 		}
 		err = docSetRow.Index(bleveBatch)
 		if err != nil {
 			message := fmt.Sprintf("CreateDocSetIndex: Error batching bleve index for \"%s\"\n%s", dbPath, err.Error())
-			runtime.LogErrorf(s.ctx, message)
+			runtime.LogErrorf(i.ctx, message)
 		}
 	}
 	err = bleveIndex.Batch(bleveBatch)
 	if err != nil {
 		message := fmt.Sprintf("CreateDocSetIndex: Error executing bleve batch for \"%s\"\n%s", dbPath, err.Error())
-		runtime.LogErrorf(s.ctx, message)
+		runtime.LogErrorf(i.ctx, message)
 		return message
 	}
 
 	err = rows.Err()
 	if err != nil {
 		message := fmt.Sprintf("CreateDocSetIndex: Error iterating db row \"%s\"\n%s", dbPath, err)
-		runtime.LogErrorf(s.ctx, message)
+		runtime.LogErrorf(i.ctx, message)
 		return message
 	}
 
-	runtime.LogPrintf(s.ctx, "CreateDocSetIndex: complete.")
+	runtime.LogPrintf(i.ctx, "CreateDocSetIndex: complete.")
 
 	return ""
 }
 
 type SearchDocSetResult struct {
-	Results []SearchResult `json:"results"`
-	Error   string         `json:"error"`
+	Results []IndexedItem `json:"results"`
+	Error   string        `json:"error"`
 }
 
-func (s *Search) SearchDocSet(indexPath string, term string) SearchDocSetResult {
-	bleveIndex, err := bleve.Open(indexPath)
-	if err != nil {
-		message := fmt.Sprintf("SearchDocSet: Error opening bleve index \"%s\"\n%s", indexPath, err)
-		runtime.LogErrorf(s.ctx, message)
-		return SearchDocSetResult{Error: message}
+func (i *Indexer) SearchDocSet(indexPath string, term string) SearchDocSetResult {
+	_, ok := i.connections[indexPath]
+	if !ok {
+		bleveIndex, err := bleve.Open(indexPath)
+		if err != nil {
+			message := fmt.Sprintf("SearchDocSet: Error opening bleve index \"%s\"\n%s", indexPath, err)
+			runtime.LogErrorf(i.ctx, message)
+			return SearchDocSetResult{Error: message}
+		}
+		i.connections[indexPath] = bleveIndex
 	}
-	defer bleveIndex.Close()
+	bleveIndex := i.connections[indexPath]
 
 	matchQuery := bleve.NewMatchQuery(term)
 
@@ -142,15 +165,15 @@ func (s *Search) SearchDocSet(indexPath string, term string) SearchDocSetResult 
 	searchResult, err := bleveIndex.Search(searchRequest)
 	if err != nil {
 		message := fmt.Sprintf("SearchDocSet: Error searching bleve index \"%s\"\n%s", indexPath, err)
-		runtime.LogErrorf(s.ctx, message)
+		runtime.LogErrorf(i.ctx, message)
 		return SearchDocSetResult{Error: message}
 	}
 
-	var results []SearchResult
+	var results []IndexedItem
 	if searchResult.Total > 0 {
-		runtime.LogPrintf(s.ctx, "\n")
+		runtime.LogPrintf(i.ctx, "\n")
 		for _, hit := range searchResult.Hits {
-			docSetRow := SearchResult{
+			docSetRow := IndexedItem{
 				Id:      int32(hit.Fields["id"].(float64)),
 				Name:    hit.Fields["name"].(string),
 				RowType: hit.Fields["type"].(string),
@@ -160,14 +183,14 @@ func (s *Search) SearchDocSet(indexPath string, term string) SearchDocSetResult 
 
 			for _, outerValue := range hit.Locations {
 				for key, innerValue := range outerValue {
-					runtime.LogPrintf(s.ctx, "Term: %+v", key)
+					runtime.LogPrintf(i.ctx, "Term: %+v", key)
 					for _, location := range innerValue {
-						runtime.LogPrintf(s.ctx, "  %+v", location)
+						runtime.LogPrintf(i.ctx, "  %+v", location)
 					}
 				}
 			}
 			message := fmt.Sprintf("Score: %+v", hit.Score)
-			runtime.LogPrintf(s.ctx, message)
+			runtime.LogPrintf(i.ctx, message)
 		}
 		//message := fmt.Sprintf("SearchDocSet: Result - %v", results)
 		//runtime.LogPrintf(s.ctx, message)
@@ -176,7 +199,7 @@ func (s *Search) SearchDocSet(indexPath string, term string) SearchDocSetResult 
 	return SearchDocSetResult{Results: results}
 }
 
-func newBleveIndexMapping(s *Search) *mapping.IndexMappingImpl {
+func newBleveIndexMapping(i *Indexer) *mapping.IndexMappingImpl {
 	bleveIndexMapping := bleve.NewIndexMapping()
 	err := bleveIndexMapping.AddCustomCharFilter("regexp", map[string]interface{}{
 		"type":    regexp.Name,
@@ -185,7 +208,7 @@ func newBleveIndexMapping(s *Search) *mapping.IndexMappingImpl {
 	})
 	if err != nil {
 		message := fmt.Sprintf("newBleveIndexMapping: Error adding custom char filter\n%s", err)
-		runtime.LogErrorf(s.ctx, message)
+		runtime.LogErrorf(i.ctx, message)
 	}
 
 	err = bleveIndexMapping.AddCustomAnalyzer("custom", map[string]interface{}{
@@ -200,7 +223,7 @@ func newBleveIndexMapping(s *Search) *mapping.IndexMappingImpl {
 	})
 	if err != nil {
 		message := fmt.Sprintf("newBleveIndexMapping: Error adding custom analyzer\n%s", err)
-		runtime.LogErrorf(s.ctx, message)
+		runtime.LogErrorf(i.ctx, message)
 	}
 
 	docSetDocumentMapping := bleve.NewDocumentMapping()

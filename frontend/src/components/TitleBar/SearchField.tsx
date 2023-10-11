@@ -12,7 +12,7 @@ import {
   useState,
 } from 'react';
 
-import { searchDocSet } from 'services/search';
+import { searchDocSet } from 'services/indexer.ts';
 
 import { useStores } from 'stores';
 import { DocSetStore } from 'stores/DocSetStore';
