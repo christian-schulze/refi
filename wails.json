@@ -10,5 +10,10 @@
     "name": "Christian Schulze",
     "email": "christian.schulze@gmail.com"
   },
+  "info": {
+    "comments": "An open source API Documentation Browser for Linux",
+    "productName": "refi",
+    "productVersion": "0.0.1"
+  },
   "appargs": ""
 }
