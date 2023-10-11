@@ -6,9 +6,15 @@ import {
   runInAction,
 } from 'mobx';
 
-import { DocSet, deleteDocSet, loadDocSets } from 'services/docSetManager';
+import {
+  DocSet,
+  deleteDocSet,
+  isDocSetUpdatable,
+  loadDocSets,
+} from 'services/docSetManager';
 import { closeIndex } from 'services/indexer.ts';
 
+import { DocSetFeedStore } from './DocSetFeedStore.ts';
 import { DocSetStore } from './DocSetStore';
 import { ErrorsStore } from './ErrorsStore';
 import { SettingsStore } from './SettingsStore';
@@ -16,6 +22,7 @@ import { SettingsStore } from './SettingsStore';
 export class DocSetListStore {
   errorsStore: ErrorsStore;
   settingsStore: SettingsStore;
+  docSetFeedStore: DocSetFeedStore;
 
   docSets: {
     [name: string]: DocSetStore;
@@ -25,9 +32,14 @@ export class DocSetListStore {
   searchResults: Array<DocSetStore> = [];
   selectedSearchResultName = '';
 
-  constructor(errorsStore: ErrorsStore, settingsStore: SettingsStore) {
+  constructor(
+    errorsStore: ErrorsStore,
+    settingsStore: SettingsStore,
+    docSetFeedStore: DocSetFeedStore,
+  ) {
     this.errorsStore = errorsStore;
     this.settingsStore = settingsStore;
+    this.docSetFeedStore = docSetFeedStore;
 
     makeObservable(this, {
       docSets: observable,
@@ -48,7 +60,11 @@ export class DocSetListStore {
   }
 
   addDocSet(docSet: DocSet) {
-    this.docSets[docSet.name] = new DocSetStore(docSet);
+    const docSetStore = new DocSetStore(docSet);
+    this.docSets[docSet.name] = docSetStore;
+    if (isDocSetUpdatable(docSetStore, this.docSetFeedStore)) {
+      docSetStore.setUpdatable(true);
+    }
   }
 
   setQuery(query: string) {

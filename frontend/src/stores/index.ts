@@ -10,11 +10,15 @@ import { TabsStore } from './TabsStore';
 
 const errorsStore = new ErrorsStore();
 const settingsStore = new SettingsStore(errorsStore);
+const docSetFeedStore = new DocSetFeedStore(errorsStore, settingsStore);
 const tabsStore = new TabsStore(errorsStore);
 const docSetAliasStore = new DocSetAliasStore(errorsStore);
 const docSetManagerStore = new DocSetManagerStore(errorsStore, settingsStore);
-const docSetListStore = new DocSetListStore(errorsStore, settingsStore);
-const docSetFeedStore = new DocSetFeedStore(errorsStore, settingsStore);
+const docSetListStore = new DocSetListStore(
+  errorsStore,
+  settingsStore,
+  docSetFeedStore,
+);
 
 export const stores = {
   docSetAliasStore,

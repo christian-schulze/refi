@@ -6,7 +6,6 @@ import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { Outlet } from 'react-router';
 
-import { checkForUpdatableDocSets } from 'services/docSetManager';
 import { useStores } from 'stores';
 
 import { TitleBar } from 'components/TitleBar';
@@ -41,9 +40,9 @@ export const Root = observer(() => {
   useEffect(() => {
     return reaction(
       () => docSetFeedStore.state,
-      (state, prev) => {
+      async (state, prev) => {
         if (state === 'inactive' && prev !== 'inactive') {
-          checkForUpdatableDocSets(docSetListStore, docSetFeedStore);
+          await docSetListStore.loadDocSets();
         }
       },
     );

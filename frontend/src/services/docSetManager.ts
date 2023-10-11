@@ -6,8 +6,8 @@ import {
 import { EventsOn } from '../../wailsjs/runtime';
 
 import { DocSetFeedStore } from 'stores/DocSetFeedStore';
-import { DocSetListStore } from 'stores/DocSetListStore';
 
+import { DocSetStore } from '../stores/DocSetStore.ts';
 import { readTextFile, removeDir } from './fs';
 import { doesPathExist, splitPathAndBaseName } from './path';
 import { readPListFile } from './plistParser';
@@ -182,19 +182,14 @@ export const checkVersionString = (a: string, b: string) => {
   return y.length > x.length ? -1 : 0;
 };
 
-export const checkForUpdatableDocSets = (
-  docSetListStore: DocSetListStore,
+export const isDocSetUpdatable = (
+  docSet: DocSetStore,
   docSetFeedStore: DocSetFeedStore,
 ) => {
-  for (let name of Object.keys(docSetListStore.docSets)) {
-    const docSet = docSetListStore.docSets[name];
-    const currentVersion = docSet.version.replaceAll(/[\n\/]/g, '');
-    const latestVersion = docSetFeedStore
-      .getDocSetVersion(docSet.feedEntryName)
-      .replaceAll(/[\n\/]/g, '');
+  const currentVersion = docSet.version.replaceAll(/[\n\/]/g, '');
+  const latestVersion = docSetFeedStore
+    .getDocSetVersion(docSet.feedEntryName)
+    .replaceAll(/[\n\/]/g, '');
 
-    if (checkVersionString(latestVersion, currentVersion) === 1) {
-      docSet.setUpdatable(true);
-    }
-  }
+  return checkVersionString(latestVersion, currentVersion) === 1;
 };
