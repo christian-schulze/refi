@@ -1,9 +1,5 @@
 # REFI
 
----
-
-## About
-
 `Refi` is an open source API Documentation Browser for `Linux`, which makes use of [DocSets](https://kapeli.com/docsets)
 (with permission) originally used in the [Dash](https://kapeli.com/dash) application for OSX.
 
@@ -11,13 +7,18 @@
 
 ## Status
 
-This project is still very much a WIP. You can install DocSets, search for and view results.
-However, there is no auto updating of DocSets, no global hotkey activation, or UI configurable settings.
+This project is still very much a WIP, however you can install DocSets, search for and view results.
 
-I'm also experimenting with fuzzy searching to make it easier to find things without needing to
-type exact matches.
+### Missing features:
+- auto update docsets at startup
+- auto update docsets on a schedule
+- minimise to task tray (run in background)
+- global hotkey activation
+- per docset favorites
+- flesh out settings page
+- others?
 
-## Development set up
+## Development
 
 ### Dependencies:
 - Go v1.18+
@@ -26,14 +27,14 @@ type exact matches.
 
 ### Installing `wails`
 
-This application uses [wails](https://wails.io/) as a web platform based application container
+This application uses [wails](https://wails.io/), which is a Go based web application container
 similar but allot lighter than Electron.
 ```bash
 go install github.com/wailsapp/wails/v2/cmd/wails@latest
 ```
 See [here](https://wails.io/docs/gettingstarted/installation/) for more detailed installation instructions. 
 
-## Live Development
+### Live Development
 
 To run in live development mode, run `wails dev -tags webkit2_42`.
 
@@ -41,16 +42,22 @@ If you want to develop in a browser and have access to your Go methods, there is
 server that runs on http://localhost:34115. Connect to this in your browser, and you can call
 your Go code from devtools.
 
-## Building
+### Building
 
 To build a redistributable, production mode package, run `wails build`.
 
-## Building the `spellfix` sqlite extension
+## Contributing
 
-```shell
-cd resources
-curl -o sqlite-src https://sqlite.org/2023/sqlite-src-3430100.zip
-cd resources/sqlite-src/ext/misc
-gcc -I. -g -fPIC -shared spellfix.c -o spellfix.so
-cp spellfix.so ../../..
-```
+If you find a bug please log an issue, decribing in as much detail as possible including your OS.
+
+To avoid your hard work not being merged, please discuss any changes or fixes with me first. Once we
+agree on a solution fork the repo and create a pull request, making sure to link any related issue.
+
+## License
+
+Distributed under the `GPL-3.0` License. See [LICENSE](LICENSE) for more information.
+
+## Acknowledgments
+
+- Thank you `Bogdan` for creating [Dash](https://kapeli.com/dash) for OSX, and allowing me to use DocSets in this project.
+- [wails](https://wails.io/) - Go based web application container (similar but lighter than Electron).
