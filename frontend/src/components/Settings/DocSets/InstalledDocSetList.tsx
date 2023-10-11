@@ -8,6 +8,7 @@ import { DocSetStore } from 'stores/DocSetStore';
 
 import { List, ListProps } from 'components/List';
 import { Typography } from 'components/Typography';
+
 import { InstalledDocSetsItem } from './InstalledDocSetsItem';
 
 const StyledDocSetList = styled(List)`
@@ -56,9 +57,24 @@ const ActionsColumnHeader = styled.div`
 `;
 
 export const InstalledDocSetList = observer(() => {
-  const { docSetListStore } = useStores();
+  const { docSetFeedStore, docSetListStore, docSetManagerStore } = useStores();
 
   const [selectedDocSet, setSelectedDocSet] = useState<DocSetStore>();
+
+  const handleClickDelete = async (name: string) => {
+    await docSetListStore.deleteDocSet(name);
+  };
+
+  const handleClickReindex = async (name: string) => {
+    const docSet = docSetListStore.docSets[name];
+    await docSetManagerStore.reIndexDocSet(docSet.feedEntryName);
+  };
+
+  const handleClickUpdate = async (name: string) => {
+    const docSet = docSetListStore.docSets[name];
+    await docSetManagerStore.updateDocSet(docSet, docSetFeedStore);
+    docSetListStore.loadDocSets();
+  };
 
   const handleSelect: ListProps<DocSetStore>['onSelect'] = (docSet) => {
     setSelectedDocSet(docSet);
@@ -77,7 +93,14 @@ export const InstalledDocSetList = observer(() => {
       itemSize={24}
       onSelect={handleSelect}
       renderItem={(docSet, props) => (
-        <InstalledDocSetsItem docSet={docSet} {...props} />
+        <InstalledDocSetsItem
+          key={docSet.name}
+          docSet={docSet}
+          onClickDelete={handleClickDelete}
+          onClickReIndex={handleClickReindex}
+          onClickUpdate={handleClickUpdate}
+          {...props}
+        />
       )}
       selectedItem={selectedDocSet}
       tabIndex={0}

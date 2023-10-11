@@ -56,34 +56,56 @@ const ActionsColumn = styled.div`
 
 export interface AvailableDocSetItemProps extends RenderItemProps {
   name: string;
+  onClickDownload: (name: string) => void;
 }
 
 export const AvailableDocSetItem = observer(
-  ({ name, ...props }: AvailableDocSetItemProps) => {
-    const { docSetFeedStore, docSetManagerStore, docSetListStore } =
-      useStores();
+  ({ name, onClickDownload, ...props }: AvailableDocSetItemProps) => {
+    const { docSetManagerStore } = useStores();
 
-    const handleClickDownload =
-      (name: string) => async (_event: MouseEvent<HTMLButtonElement>) => {
-        const urls = docSetFeedStore.getDocSetUrls(name);
-        const version = docSetFeedStore.getDocSetVersion(name);
-        if (urls.length > 0) {
-          await docSetManagerStore.installDocSet(urls[0], name, version);
-          docSetListStore.loadDocSets();
-        }
-      };
+    const handleClickDownload = (_event: MouseEvent<HTMLButtonElement>) => {
+      onClickDownload(name);
+    };
+
+    const renderProgressChip = () => {
+      const installProgress = docSetManagerStore.docSetInstallProgress[name];
+      const progress =
+        installProgress.status === 'Downloading' ? (
+          <>&nbsp;{installProgress.progress}%</>
+        ) : (
+          ''
+        );
+
+      return (
+        <Chip
+          color="success"
+          label={
+            <>
+              <span>
+                {installProgress.status}
+                {progress}
+              </span>
+              &nbsp;
+              <DotsSpinnerIcon />
+            </>
+          }
+          size="small"
+          sx={{
+            '.MuiChip-label': {
+              display: 'flex',
+              alignItems: 'center',
+            },
+          }}
+        />
+      );
+    };
 
     return (
       <DocSetListItem {...props}>
         <Typography variant="body">{name}</Typography>
         <ActionsColumn>
-          {docSetManagerStore.docSetDownloadProgress[name] ? (
-            <Chip
-              color="success"
-              icon={<DotsSpinnerIcon />}
-              label={docSetManagerStore.docSetDownloadProgress[name] + '%'}
-              size="small"
-            />
+          {docSetManagerStore.docSetInstallProgress[name] ? (
+            renderProgressChip()
           ) : (
             <Tooltip
               title={
@@ -93,7 +115,7 @@ export const AvailableDocSetItem = observer(
               }
               placement="left"
             >
-              <IconButton onClick={handleClickDownload(name)} size="small">
+              <IconButton onClick={handleClickDownload} size="small">
                 <DownloadIcon sx={{ color: 'green' }} />
               </IconButton>
             </Tooltip>

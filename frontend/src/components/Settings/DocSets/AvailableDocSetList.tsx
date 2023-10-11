@@ -50,7 +50,7 @@ const ActionsColumnHeader = styled.div`
 `;
 
 export const AvailableDocSetList = observer(() => {
-  const { docSetFeedStore, docSetListStore } = useStores();
+  const { docSetFeedStore, docSetListStore, docSetManagerStore } = useStores();
 
   const [filterValue, setFilterValue] = useState('');
   const [filteredDocSetNames, setFilteredDocSetNames] = useState<Array<string>>(
@@ -60,32 +60,53 @@ export const AvailableDocSetList = observer(() => {
 
   useEffect(() => {
     return autorun(() => {
-      if (filterValue) {
-        const matchingNames = Object.keys(docSetFeedStore.docSetFeedEntries)
-          .filter((name) => !(name.toLowerCase() in docSetListStore.docSets))
-          .filter((name) => name.includes(filterValue));
-        setFilteredDocSetNames(matchingNames);
-      } else {
-        setFilteredDocSetNames(Object.keys(docSetFeedStore.docSetFeedEntries));
-      }
+      docSetFeedStore.docSetFeedEntries;
+      docSetListStore.docSets;
+
+      filter(filterValue);
     });
-  }, []);
+  }, [filterValue]);
+
+  const filter = (value: string) => {
+    const docSetFeedEntries = Object.keys(docSetFeedStore.docSetFeedEntries);
+    const docSetNames = Object.values(docSetListStore.docSets).map(
+      (docSet) => docSet.feedEntryName,
+    );
+
+    if (value) {
+      setFilteredDocSetNames(
+        docSetFeedEntries.filter(
+          (feedEntryName) =>
+            !docSetNames.includes(feedEntryName) &&
+            feedEntryName.toLowerCase().includes(value.toLowerCase()),
+        ),
+      );
+    } else {
+      setFilteredDocSetNames(
+        docSetFeedEntries.filter(
+          (feedEntryName) => !docSetNames.includes(feedEntryName),
+        ),
+      );
+    }
+  };
 
   const handleChangeFilter = (event: ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
     setFilterValue(value.toLowerCase());
-    if (value) {
-      const matchingNames = Object.keys(docSetFeedStore.docSetFeedEntries)
-        .filter((name) => !(name.toLowerCase() in docSetListStore.docSets))
-        .filter((name) => name.toLowerCase().includes(value.toLowerCase()));
-      setFilteredDocSetNames(matchingNames);
-    } else {
-      setFilteredDocSetNames(Object.keys(docSetFeedStore.docSetFeedEntries));
-    }
+    filter(value);
   };
 
   const handleSelect: ListProps<string>['onSelect'] = (name) => {
     setSelectedDocSetName(name);
+  };
+
+  const handleClickDownload = async (name: string) => {
+    const urls = docSetFeedStore.getDocSetUrls(name);
+    const version = docSetFeedStore.getDocSetVersion(name);
+    if (urls.length > 0) {
+      await docSetManagerStore.installDocSet(urls[0], name, version);
+      await docSetListStore.loadDocSets();
+    }
   };
 
   return (
@@ -125,7 +146,14 @@ export const AvailableDocSetList = observer(() => {
         itemSize={24}
         onSelect={handleSelect}
         renderItem={(name, props) => {
-          return <AvailableDocSetItem key={name} name={name} {...props} />;
+          return (
+            <AvailableDocSetItem
+              key={name}
+              name={name}
+              onClickDownload={handleClickDownload}
+              {...props}
+            />
+          );
         }}
         selectedItem={selectedDocSetName}
         tabIndex={0}

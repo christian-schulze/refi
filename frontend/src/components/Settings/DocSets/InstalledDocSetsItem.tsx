@@ -61,36 +61,72 @@ const ActionsColumn = styled.div`
 
 export interface InstalledDocSetsItemProps extends RenderItemProps {
   docSet: DocSetStore;
+  onClickDelete: (name: string) => void;
+  onClickReIndex: (name: string) => void;
+  onClickUpdate: (name: string) => void;
 }
 
 export const InstalledDocSetsItem = observer(
-  ({ docSet, ...props }: InstalledDocSetsItemProps) => {
-    const { docSetFeedStore, docSetListStore, docSetManagerStore } =
-      useStores();
+  ({
+    docSet,
+    onClickDelete,
+    onClickReIndex,
+    onClickUpdate,
+    ...props
+  }: InstalledDocSetsItemProps) => {
+    const { docSetManagerStore } = useStores();
 
-    const handleClickReindex =
-      (name: string) => async (event: MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-        const docSet = docSetListStore.docSets[name];
-        await docSetManagerStore.reIndexDocSet(docSet.feedEntryName);
-      };
+    const handleClickReindex = (event: MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      onClickReIndex(docSet.name);
+    };
 
-    const handleClickUpdate =
-      (name: string) => async (event: MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-        const docSet = docSetListStore.docSets[name];
-        await docSetManagerStore.updateDocSet(docSet, docSetFeedStore);
-        docSetListStore.loadDocSets();
-      };
+    const handleClickUpdate = (event: MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      onClickUpdate(docSet.name);
+    };
 
-    const handleClickDelete =
-      (name: string) => (event: MouseEvent<HTMLButtonElement>) => {
-        event.preventDefault();
-        docSetListStore.deleteDocSet(name);
-      };
+    const handleClickDelete = (event: MouseEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      onClickDelete(docSet.name);
+    };
+
+    const renderProgressChip = () => {
+      const installProgress =
+        docSetManagerStore.docSetInstallProgress[docSet.feedEntryName];
+      const progress =
+        installProgress.status === 'Downloading' ? (
+          <>&nbsp;{installProgress.progress}%</>
+        ) : (
+          ''
+        );
+
+      return (
+        <Chip
+          color="success"
+          label={
+            <>
+              <span>
+                {installProgress.status}
+                {progress}
+              </span>
+              &nbsp;
+              <DotsSpinnerIcon />
+            </>
+          }
+          size="small"
+          sx={{
+            '.MuiChip-label': {
+              display: 'flex',
+              alignItems: 'center',
+            },
+          }}
+        />
+      );
+    };
 
     const showUpateProgress =
-      docSet.feedEntryName in docSetManagerStore.docSetDownloadProgress;
+      docSet.feedEntryName in docSetManagerStore.docSetInstallProgress;
     const showRefreshIndexIcon = !showUpateProgress;
     const showUpdateIconButton = docSet.updatable && !showUpateProgress;
     const showDeleteIconButton = !showUpateProgress;
@@ -109,26 +145,12 @@ export const InstalledDocSetsItem = observer(
               }
               placement="left"
             >
-              <IconButton
-                onClick={handleClickReindex(docSet.name)}
-                size="small"
-              >
+              <IconButton onClick={handleClickReindex} size="small">
                 <SyncIcon sx={{ color: 'text.primary' }} />
               </IconButton>
             </Tooltip>
           )}
-          {showUpateProgress && (
-            <Chip
-              color="success"
-              icon={<DotsSpinnerIcon />}
-              label={
-                docSetManagerStore.docSetDownloadProgress[
-                  docSet.feedEntryName
-                ] + '%'
-              }
-              size="small"
-            />
-          )}
+          {showUpateProgress && renderProgressChip()}
           {showUpdateIconButton && (
             <Tooltip
               title={
@@ -138,7 +160,7 @@ export const InstalledDocSetsItem = observer(
               }
               placement="left"
             >
-              <IconButton onClick={handleClickUpdate(docSet.name)} size="small">
+              <IconButton onClick={handleClickUpdate} size="small">
                 <UpgradeIcon sx={{ color: 'text.primary' }} />
               </IconButton>
             </Tooltip>
@@ -152,7 +174,7 @@ export const InstalledDocSetsItem = observer(
               }
               placement="left"
             >
-              <IconButton onClick={handleClickDelete(docSet.name)} size="small">
+              <IconButton onClick={handleClickDelete} size="small">
                 <CloseIcon sx={{ color: 'red' }} />
               </IconButton>
             </Tooltip>

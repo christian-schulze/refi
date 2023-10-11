@@ -16,12 +16,17 @@ import { DocSetStore } from './DocSetStore';
 import { ErrorsStore } from './ErrorsStore';
 import { SettingsStore } from './SettingsStore';
 
+export interface DocSetInstallProgress {
+  status: 'Queued' | 'Downloading' | 'Extracting' | 'Indexing' | 'Done';
+  progress: number;
+}
+
 export class DocSetManagerStore {
   errorsStore: ErrorsStore;
   settingsStore: SettingsStore;
 
-  docSetDownloadProgress: {
-    [name: string]: number;
+  docSetInstallProgress: {
+    [name: string]: DocSetInstallProgress;
   } = {};
 
   constructor(errorsStore: ErrorsStore, settingsStore: SettingsStore) {
@@ -29,28 +34,41 @@ export class DocSetManagerStore {
     this.settingsStore = settingsStore;
 
     makeObservable(this, {
-      docSetDownloadProgress: observable,
-      updateDownloadProgress: action,
-      removeDownloadProgress: action,
+      docSetInstallProgress: observable,
+      updateInstallProgress: action,
+      removeInstallProgress: action,
       installDocSet: action,
       updateDocSet: action,
     });
   }
 
-  updateDownloadProgress(name: string, progress: number) {
-    this.docSetDownloadProgress[name] = Math.round(progress);
+  updateInstallStatus(name: string, status: DocSetInstallProgress['status']) {
+    if (name in this.docSetInstallProgress) {
+      this.docSetInstallProgress[name].status = status;
+    } else {
+      this.docSetInstallProgress[name] = {
+        status,
+        progress: 0,
+      };
+    }
   }
 
-  removeDownloadProgress(name: string) {
-    if (name in this.docSetDownloadProgress) {
-      delete this.docSetDownloadProgress[name];
+  updateInstallProgress(name: string, progress: number) {
+    this.docSetInstallProgress[name].progress = Math.round(progress);
+  }
+
+  removeInstallProgress(name: string) {
+    if (name in this.docSetInstallProgress) {
+      delete this.docSetInstallProgress[name];
     }
   }
 
   async installDocSet(url: string, name: string, version: string) {
     try {
-      if (!(name in this.docSetDownloadProgress)) {
-        this.updateDownloadProgress(name, 0);
+      if (!(name in this.docSetInstallProgress)) {
+        runInAction(() => {
+          this.updateInstallStatus(name, 'Queued');
+        });
 
         const docSetsPath = this.settingsStore.docSetsPath;
         const docSetsIconsUrl = this.settingsStore.docSetsIconsUrl;
@@ -60,8 +78,12 @@ export class DocSetManagerStore {
         const docSetPath = `${docSetsPath}${window.pathSeperator}${name}.docset`;
         await downloadDocSet(url, docSetArchivePath, (progress, total) => {
           runInAction(() => {
-            this.updateDownloadProgress(name, (progress / total) * 100);
+            this.updateInstallStatus(name, 'Downloading');
+            this.updateInstallProgress(name, (progress / total) * 100);
           });
+        });
+        runInAction(() => {
+          this.updateInstallStatus(name, 'Extracting');
         });
         await decompressDocSetArchive(docSetArchivePath, docSetsPath);
         await writeFile(
@@ -87,16 +109,21 @@ export class DocSetManagerStore {
           );
         }
 
+        runInAction(() => {
+          this.updateInstallStatus(name, 'Indexing');
+        });
+
         await createDocSetIndex(docSetStore.indexPath, docSetStore.dbPath);
 
-        // TODO: experimenting with spellfix sqlite extension for fuzzy matching
-        // await createFuzzySearchIndex(docSetStore.dbPath);
+        runInAction(() => {
+          this.updateInstallStatus(name, 'Done');
+        });
       }
     } catch (error) {
       this.errorsStore.addError(error as Error);
     } finally {
       runInAction(() => {
-        this.removeDownloadProgress(name);
+        this.removeInstallProgress(name);
       });
     }
   }
@@ -113,7 +140,7 @@ export class DocSetManagerStore {
       this.errorsStore.addError(error as Error);
     } finally {
       runInAction(() => {
-        this.removeDownloadProgress(name);
+        this.removeInstallProgress(name);
       });
     }
   }
