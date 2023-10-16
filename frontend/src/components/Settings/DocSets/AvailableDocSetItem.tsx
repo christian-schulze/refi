@@ -1,17 +1,16 @@
 import styled from '@emotion/styled';
-import DownloadIcon from '@mui/icons-material/Download';
-import Chip from '@mui/material/Chip';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
 import { observer } from 'mobx-react-lite';
 import { darken, lighten } from 'polished';
 import { MouseEvent } from 'react';
 
 import { useStores } from 'stores';
 
+import { Chip } from 'components/Chip';
+import { IconButton } from 'components/IconButton';
 import { RenderItemProps } from 'components/List';
+import { Tooltip } from 'components/Tooltip';
 import { Typography } from 'components/Typography';
-import { DotsSpinnerIcon } from 'components/icons/DotsSpinnerIcon';
+import { DotsSpinnerIcon, DownloadIcon } from 'components/icons';
 
 const DocSetListItem = styled.div<{ selected?: boolean }>`
   display: flex;

@@ -1,14 +1,12 @@
 import styled from '@emotion/styled';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArrowForward from '@mui/icons-material/ArrowForward';
-import CloseIcon from '@mui/icons-material/Close';
-import IconButton from '@mui/material/IconButton';
 import { observer } from 'mobx-react-lite';
 import { MouseEvent, MouseEventHandler } from 'react';
 
 import { useStores } from 'stores';
 
+import { IconButton } from 'components/IconButton';
 import { Typography } from 'components/Typography';
+import { ArrowBackIcon, ArrowForwardIcon, CloseIcon } from 'components/icons';
 
 const Container = styled.div`
   display: flex;
@@ -25,7 +23,9 @@ const Tabs = styled.div`
   height: 100%;
 `;
 
-const Tab = styled.div<{ selected: boolean }>`
+const Tab = styled.div<{
+  selected: boolean;
+}>`
   position: relative;
   display: flex;
   align-items: center;
@@ -88,7 +88,7 @@ export const Header = observer(
           <ArrowBackIcon color="secondary" />
         </IconButton>
         <IconButton onClick={onClickForward}>
-          <ArrowForward color="secondary" />
+          <ArrowForwardIcon color="secondary" />
         </IconButton>
         {tabsStore.currentTab ? (
           <Tabs>

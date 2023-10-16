@@ -8,7 +8,7 @@ import {
   loadDocSet,
 } from 'services/docSetManager';
 import { removeDir, removeFile, rename, writeFile } from 'services/fs';
-import { closeIndex, createDocSetIndex } from 'services/indexer.ts';
+import { closeIndex, createDocSetIndex } from 'services/indexer';
 import { doesPathExist } from 'services/path';
 
 import { DocSetFeedStore } from './DocSetFeedStore';

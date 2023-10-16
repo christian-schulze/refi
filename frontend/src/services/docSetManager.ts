@@ -6,8 +6,8 @@ import {
 import { EventsOn } from '../../wailsjs/runtime';
 
 import { DocSetFeedStore } from 'stores/DocSetFeedStore';
+import { DocSetStore } from 'stores/DocSetStore';
 
-import { DocSetStore } from '../stores/DocSetStore.ts';
 import { readTextFile, removeDir } from './fs';
 import { doesPathExist, splitPathAndBaseName } from './path';
 import { readPListFile } from './plistParser';

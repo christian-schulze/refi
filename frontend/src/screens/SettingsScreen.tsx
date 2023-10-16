@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import Button from '@mui/material/Button';
 import { observer } from 'mobx-react-lite';
 import { Resizable } from 're-resizable';
 import { MouseEvent } from 'react';
@@ -10,11 +9,12 @@ import { BrowserOpenURL } from '../../wailsjs/runtime';
 import { useStores } from 'stores';
 import { SettingsItem } from 'stores/SettingsStore';
 
+import { Button } from 'components/Button';
 import { ListProps } from 'components/List';
 import { DocSets } from 'components/Settings/DocSetsPanel';
 import { GeneralSettingsPanel } from 'components/Settings/GeneralSettingsPanel';
 import { SettingsList } from 'components/Settings/SettingsList';
-import { Typography } from '../components/Typography';
+import { Typography } from 'components/Typography';
 
 const Container = styled.div`
   flex-grow: 1;

@@ -12,9 +12,9 @@ import {
   isDocSetUpdatable,
   loadDocSets,
 } from 'services/docSetManager';
-import { closeIndex } from 'services/indexer.ts';
+import { closeIndex } from 'services/indexer';
 
-import { DocSetFeedStore } from './DocSetFeedStore.ts';
+import { DocSetFeedStore } from './DocSetFeedStore';
 import { DocSetStore } from './DocSetStore';
 import { ErrorsStore } from './ErrorsStore';
 import { SettingsStore } from './SettingsStore';

@@ -51,7 +51,7 @@ To build a redistributable, production mode package, run `wails build`.
 If you find a bug please log an issue, decribing in as much detail as possible including your OS.
 
 To avoid your hard work not being merged, please discuss any changes or fixes with me first. Once we
-agree on a solution fork the repo and create a pull request, making sure to link any related issue.
+agree on a solution, fork the repo and create a pull request, making sure to link any related issue.
 
 ## License
 

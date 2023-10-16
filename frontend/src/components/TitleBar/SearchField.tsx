@@ -12,7 +12,7 @@ import {
   useState,
 } from 'react';
 
-import { searchDocSet } from 'services/indexer.ts';
+import { searchDocSet } from 'services/indexer';
 
 import { useStores } from 'stores';
 import { DocSetStore } from 'stores/DocSetStore';
@@ -22,7 +22,7 @@ import { DocSetSearchResults } from 'components/DocSetSearchResults';
 import { DocSetsSearchResults } from 'components/DocSetsSearchResults';
 import { Input } from 'components/Input';
 import { Spinner } from 'components/Spinner';
-import { BackspaceIcon } from 'components/icons/BackspaceIcon';
+import { BackspaceIcon } from 'components/icons';
 
 const Container = styled.div`
   position: relative;
