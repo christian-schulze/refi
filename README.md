@@ -12,7 +12,6 @@ This project is still very much a WIP, however you can install DocSets, search f
 ### Missing features:
 - auto update docsets at startup
 - auto update docsets on a schedule
-- minimise to task tray (run in background)
 - global hotkey activation
 - per docset favorites
 - flesh out settings page

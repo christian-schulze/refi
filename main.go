@@ -4,6 +4,9 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"github.com/wailsapp/wails/v2"
+	"github.com/wailsapp/wails/v2/pkg/options"
+	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"net/http"
 	"os"
 	"refi/backend/config"
@@ -11,10 +14,6 @@ import (
 	"refi/backend/docsets"
 	"refi/backend/fs"
 	"refi/backend/indexer"
-
-	"github.com/wailsapp/wails/v2"
-	"github.com/wailsapp/wails/v2/pkg/options"
-	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 )
 
 //go:embed all:frontend/dist
@@ -42,7 +41,6 @@ func (h *FileLoader) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	// Create an instance of the app structure
 	app := NewApp()
 	beConfig := config.NewConfig()
 	beDB := db.NewDB()
@@ -50,11 +48,11 @@ func main() {
 	beFS := fs.NewFS()
 	beIndex := indexer.NewIndexer()
 
-	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "refi",
-		Width:  1024,
-		Height: 768,
+		Title:             "Refi",
+		Width:             1024,
+		Height:            768,
+		HideWindowOnClose: true,
 		AssetServer: &assetserver.Options{
 			Assets:  assets,
 			Handler: NewFileLoader(),

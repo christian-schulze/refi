@@ -31,48 +31,48 @@ func NewDB() *DB {
 	return &DB{connections: map[string]*sql.DB{}}
 }
 
-func (a *DB) Startup(ctx context.Context) {
-	a.ctx = ctx
+func (db *DB) Startup(ctx context.Context) {
+	db.ctx = ctx
 }
 
-func (a *DB) OpenDB(dbPath string) string {
-	db, err := sql.Open("sqlite3", dbPath)
+func (db *DB) OpenDB(dbPath string) string {
+	dbConn, err := sql.Open("sqlite3", dbPath)
 	//db, err := sql.Open("sqlite3_with_spellfix_extension", dbPath)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "OpenDB: Error opening db \"%s\"\n%s", dbPath, err)
+		runtime.LogErrorf(db.ctx, "OpenDB: Error opening db \"%s\"\n%s", dbPath, err)
 		return err.Error()
 	}
 
-	a.connections[dbPath] = db
+	db.connections[dbPath] = dbConn
 
 	return ""
 }
 
-func (a *DB) Close(dbPath string) {
-	db := a.connections[dbPath]
-	if db == nil {
-		runtime.LogErrorf(a.ctx, "Close: connection not found \"%s\"", dbPath)
+func (db *DB) Close(dbPath string) {
+	dbConn := db.connections[dbPath]
+	if dbConn == nil {
+		runtime.LogErrorf(db.ctx, "Close: connection not found \"%s\"", dbPath)
 		return
 	}
 
-	err := db.Close()
+	err := dbConn.Close()
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "Close: Error closing db \"%s\"\n%s", dbPath, err)
+		runtime.LogErrorf(db.ctx, "Close: Error closing db \"%s\"\n%s", dbPath, err)
 	}
 
-	delete(a.connections, dbPath)
+	delete(db.connections, dbPath)
 }
 
-func (a *DB) TableExists(dbPath string, table string) bool {
-	db := a.connections[dbPath]
-	if db == nil {
-		runtime.LogErrorf(a.ctx, "TableExists: connection not found \"%s\"", dbPath)
+func (db *DB) TableExists(dbPath string, table string) bool {
+	dbConn := db.connections[dbPath]
+	if dbConn == nil {
+		runtime.LogErrorf(db.ctx, "TableExists: connection not found \"%s\"", dbPath)
 		return false
 	}
 
-	rows, err := db.Query("SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?;", table)
+	rows, err := dbConn.Query("SELECT count(*) FROM sqlite_master WHERE type='table' AND name=?;", table)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "TableExists: Error querying db \"%s\"\n%s", dbPath, err)
+		runtime.LogErrorf(db.ctx, "TableExists: Error querying db \"%s\"\n%s", dbPath, err)
 		return false
 	}
 	defer rows.Close()
@@ -82,12 +82,12 @@ func (a *DB) TableExists(dbPath string, table string) bool {
 	var result = struct{ count int32 }{}
 	err = rows.Scan(&result.count)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "TableExists: Error scanning db row \"%s\"\n%s", dbPath, err)
+		runtime.LogErrorf(db.ctx, "TableExists: Error scanning db row \"%s\"\n%s", dbPath, err)
 	}
 
 	err = rows.Err()
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "TableExists: Error iterating db row \"%s\"\n%s", dbPath, err)
+		runtime.LogErrorf(db.ctx, "TableExists: Error iterating db row \"%s\"\n%s", dbPath, err)
 	}
 
 	return result.count == 1
@@ -108,11 +108,11 @@ type Tokens struct {
 	Tokens []Token `xml:"Token"`
 }
 
-func (a *DB) ImportSearchIndex(dbPath string, xmlFilePath string) string {
+func (db *DB) ImportSearchIndex(dbPath string, xmlFilePath string) string {
 	data, err := os.ReadFile(xmlFilePath)
 	if err != nil {
 		message := fmt.Sprintf("ImportSearchIndex: Error reading file \"%s\"\n%s", xmlFilePath, err.Error())
-		runtime.LogErrorf(a.ctx, message)
+		runtime.LogErrorf(db.ctx, message)
 		return message
 	}
 
@@ -120,28 +120,28 @@ func (a *DB) ImportSearchIndex(dbPath string, xmlFilePath string) string {
 	err = xml.Unmarshal(data, &tokens)
 	if err != nil {
 		message := fmt.Sprintf("ImportSearchIndex: Error unmarshalling file \"%s\"\n%s", xmlFilePath, err.Error())
-		runtime.LogErrorf(a.ctx, message)
+		runtime.LogErrorf(db.ctx, message)
 		return message
 	}
 
-	db := a.connections[dbPath]
-	if db == nil {
+	dbConn := db.connections[dbPath]
+	if dbConn == nil {
 		message := fmt.Sprintf("ImportSearchIndex: connection not found \"%s\"", dbPath)
-		runtime.LogErrorf(a.ctx, message)
+		runtime.LogErrorf(db.ctx, message)
 		return message
 	}
 
-	_, err = db.Exec("CREATE TABLE searchIndex(id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT);")
+	_, err = dbConn.Exec("CREATE TABLE searchIndex(id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT);")
 	if err != nil {
 		message := fmt.Sprintf("ImportSearchIndex: error creating searchIndex table\n%s", err)
-		runtime.LogErrorf(a.ctx, message)
+		runtime.LogErrorf(db.ctx, message)
 		return message
 	}
 
-	_, err = db.Exec("CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path);")
+	_, err = dbConn.Exec("CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path);")
 	if err != nil {
 		message := fmt.Sprintf("ImportSearchIndex: error creating searchIndex index\n%s", err)
-		runtime.LogErrorf(a.ctx, message)
+		runtime.LogErrorf(db.ctx, message)
 		return message
 	}
 
@@ -155,10 +155,10 @@ func (a *DB) ImportSearchIndex(dbPath string, xmlFilePath string) string {
 	}
 	sqlInsert = sqlInsert + strings.Join(inserts, ",")
 
-	_, err = db.Exec(sqlInsert, vals...)
+	_, err = dbConn.Exec(sqlInsert, vals...)
 	if err != nil {
 		message := fmt.Sprintf("ImportSearchIndex: error inserting records into searchIndex table\n%s", err)
-		runtime.LogErrorf(a.ctx, message)
+		runtime.LogErrorf(db.ctx, message)
 		return message
 	}
 
@@ -194,20 +194,20 @@ type SearchDocSetResult struct {
 	Error   string     `json:"error"`
 }
 
-func (a *DB) SearchDocSet(dbPath string, term string) SearchDocSetResult {
+func (db *DB) SearchDocSet(dbPath string, term string) SearchDocSetResult {
 	var docSets = DocSetRows{}
 
-	db := a.connections[dbPath]
-	if db == nil {
+	dbConn := db.connections[dbPath]
+	if dbConn == nil {
 		message := fmt.Sprintf("SearchDocSet: connection not found \"%s\"", dbPath)
-		runtime.LogErrorf(a.ctx, message)
+		runtime.LogErrorf(db.ctx, message)
 		return SearchDocSetResult{Results: nil, Error: message}
 	}
 
-	stmt, err := db.Prepare("SELECT si.id, si.name, si.type, si.path FROM searchIndex si WHERE si.name LIKE ? LIMIT 100;")
+	stmt, err := dbConn.Prepare("SELECT si.id, si.name, si.type, si.path FROM searchIndex si WHERE si.name LIKE ? LIMIT 100;")
 	if err != nil {
 		message := fmt.Sprintf("SearchDocSet: Error preparing query for \"%s\"\n%s", dbPath, err)
-		runtime.LogErrorf(a.ctx, message)
+		runtime.LogErrorf(db.ctx, message)
 		return SearchDocSetResult{Results: nil, Error: message}
 	}
 	defer stmt.Close()
@@ -215,7 +215,7 @@ func (a *DB) SearchDocSet(dbPath string, term string) SearchDocSetResult {
 	rows, err := stmt.Query(term)
 	if err != nil {
 		message := fmt.Sprintf("SearchDocSet: Error querying db \"%s\"\n%s", dbPath, err)
-		runtime.LogErrorf(a.ctx, message)
+		runtime.LogErrorf(db.ctx, message)
 		return SearchDocSetResult{Results: nil, Error: message}
 	}
 	defer rows.Close()
@@ -224,7 +224,7 @@ func (a *DB) SearchDocSet(dbPath string, term string) SearchDocSetResult {
 		var docSet = DocSetRow{}
 		err = rows.Scan(&docSet.Id, &docSet.Name, &docSet.Type, &docSet.Path)
 		if err != nil {
-			runtime.LogErrorf(a.ctx, "SearchDocSet: Error scanning db row \"%s\"\n%s", dbPath, err)
+			runtime.LogErrorf(db.ctx, "SearchDocSet: Error scanning db row \"%s\"\n%s", dbPath, err)
 		}
 		docSets = append(docSets, docSet)
 	}
@@ -232,7 +232,7 @@ func (a *DB) SearchDocSet(dbPath string, term string) SearchDocSetResult {
 	err = rows.Err()
 	if err != nil {
 		message := fmt.Sprintf("SearchDocSet: Error iterating db row \"%s\"\n%s", dbPath, err)
-		runtime.LogErrorf(a.ctx, message)
+		runtime.LogErrorf(db.ctx, message)
 		return SearchDocSetResult{Results: nil, Error: message}
 	}
 
@@ -248,39 +248,39 @@ func (a *DB) SearchDocSet(dbPath string, term string) SearchDocSetResult {
 	return SearchDocSetResult{Results: docSets, Error: ""}
 }
 
-func (a *DB) CreateFuzzySearchIndex(dbPath string) string {
-	db := a.connections[dbPath]
-	if db == nil {
+func (db *DB) CreateFuzzySearchIndex(dbPath string) string {
+	dbConn := db.connections[dbPath]
+	if dbConn == nil {
 		message := fmt.Sprintf("CreateFuzzySearchIndex: connection not found \"%s\"", dbPath)
-		runtime.LogErrorf(a.ctx, message)
+		runtime.LogErrorf(db.ctx, message)
 		return message
 	}
 
-	_, err := db.Exec("CREATE VIRTUAL TABLE fuzzySearchIndex USING spellfix1();")
+	_, err := dbConn.Exec("CREATE VIRTUAL TABLE fuzzySearchIndex USING spellfix1();")
 	if err != nil {
 		message := fmt.Sprintf("CreateFuzzySearchIndex: error creating fuzzySearchIndex table\n%s", err)
-		runtime.LogErrorf(a.ctx, message)
+		runtime.LogErrorf(db.ctx, message)
 		return message
 	}
 
-	_, err = db.Exec("INSERT INTO fuzzySearchIndex(word) SELECT si.name FROM searchIndex si;")
+	_, err = dbConn.Exec("INSERT INTO fuzzySearchIndex(word) SELECT si.name FROM searchIndex si;")
 	if err != nil {
 		message := fmt.Sprintf("CreateFuzzySearchIndex: error populating fuzzySearchIndex table\n%s", err)
-		runtime.LogErrorf(a.ctx, message)
+		runtime.LogErrorf(db.ctx, message)
 		return message
 	}
 
-	_, err = db.Exec("ALTER TABLE searchIndex ADD fuzzySearchIndexId INTEGER REFERENCES fuzzySearchIndex (rowid);")
+	_, err = dbConn.Exec("ALTER TABLE searchIndex ADD fuzzySearchIndexId INTEGER REFERENCES fuzzySearchIndex (rowid);")
 	if err != nil {
 		message := fmt.Sprintf("CreateFuzzySearchIndex: error altering searchIndex table\n%s", err)
-		runtime.LogErrorf(a.ctx, message)
+		runtime.LogErrorf(db.ctx, message)
 		return message
 	}
 
-	_, err = db.Exec("UPDATE searchIndex SET fuzzySearchIndexId = fsi.rowid FROM fuzzySearchIndex fsi WHERE name = fsi.word;")
+	_, err = dbConn.Exec("UPDATE searchIndex SET fuzzySearchIndexId = fsi.rowid FROM fuzzySearchIndex fsi WHERE name = fsi.word;")
 	if err != nil {
 		message := fmt.Sprintf("CreateFuzzySearchIndex: error populating searchIndex table with foreign keys\n%s", err)
-		runtime.LogErrorf(a.ctx, message)
+		runtime.LogErrorf(db.ctx, message)
 		return message
 	}
 

@@ -65,7 +65,7 @@ func (i *IndexedItem) Index(index *bleve.Batch) error {
 }
 
 func (i *Indexer) CreateDocSetIndex(indexPath string, dbPath string) string {
-	bleveIndexMapping := newBleveIndexMapping(i)
+	bleveIndexMapping := i.newBleveIndexMapping()
 	bleveIndex, err := bleve.New(indexPath, bleveIndexMapping)
 	if err != nil {
 		message := fmt.Sprintf("CreateDocSetIndex: Error creating bleve index \"%s\"\n%s", indexPath, err.Error())
@@ -137,17 +137,12 @@ type SearchDocSetResult struct {
 }
 
 func (i *Indexer) SearchDocSet(indexPath string, term string) SearchDocSetResult {
-	_, ok := i.connections[indexPath]
-	if !ok {
-		bleveIndex, err := bleve.Open(indexPath)
-		if err != nil {
-			message := fmt.Sprintf("SearchDocSet: Error opening bleve index \"%s\"\n%s", indexPath, err)
-			runtime.LogErrorf(i.ctx, message)
-			return SearchDocSetResult{Error: message}
-		}
-		i.connections[indexPath] = bleveIndex
+	bleveIndex, err := i.findOrOpenIndex(indexPath)
+	if err != nil {
+		message := fmt.Sprintf("SearchDocSet: Error opening bleve index \"%s\"\n%s", indexPath, err)
+		runtime.LogErrorf(i.ctx, message)
+		return SearchDocSetResult{Error: message}
 	}
-	bleveIndex := i.connections[indexPath]
 
 	matchQuery := bleve.NewMatchQuery(term)
 
@@ -199,7 +194,20 @@ func (i *Indexer) SearchDocSet(indexPath string, term string) SearchDocSetResult
 	return SearchDocSetResult{Results: results}
 }
 
-func newBleveIndexMapping(i *Indexer) *mapping.IndexMappingImpl {
+func (i *Indexer) findOrOpenIndex(indexPath string) (bleve.Index, error) {
+	bleveIndex, ok := i.connections[indexPath]
+	if !ok {
+		bleveIndex, err := bleve.Open(indexPath)
+		if err != nil {
+			return nil, err
+		}
+		i.connections[indexPath] = bleveIndex
+		return bleveIndex, nil
+	}
+	return bleveIndex, nil
+}
+
+func (i *Indexer) newBleveIndexMapping() *mapping.IndexMappingImpl {
 	bleveIndexMapping := bleve.NewIndexMapping()
 	err := bleveIndexMapping.AddCustomCharFilter("regexp", map[string]interface{}{
 		"type":    regexp.Name,
