@@ -7,9 +7,7 @@ import {
 } from 'services/docSetFeedManager';
 import type {
   DocSetFeedEvent,
-  DocSetFeedInterpretter,
   DocSetFeedState,
-  DocSetFeedStateMachine,
 } from 'stateMachines/docSetFeedMachine';
 import {
   createStateMachine,
@@ -26,8 +24,8 @@ export interface DocSetFeedEntries {
 export class DocSetFeedStore {
   errorsStore: ErrorsStore;
   settingsStore: SettingsStore;
-  docSetFeedMachine: DocSetFeedStateMachine;
-  docSetFeedService: DocSetFeedInterpretter;
+  docSetFeedMachine: ReturnType<typeof createStateMachine>;
+  docSetFeedService: ReturnType<typeof interpretStateMachine>;
   state: DocSetFeedState = 'inactive';
 
   docSetFeedDownloadedTimestamp = 0;
@@ -56,7 +54,7 @@ export class DocSetFeedStore {
     this.docSetFeedMachine = createStateMachine(this);
     this.docSetFeedService = interpretStateMachine(
       this.docSetFeedMachine,
-      (state, _event) => {
+      (state) => {
         runInAction(() => {
           console.log('docSetFeedMachine', state.value);
           this.state = state.value as DocSetFeedState;
